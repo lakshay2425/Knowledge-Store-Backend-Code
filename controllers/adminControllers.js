@@ -1,5 +1,4 @@
 const { insertBookDetails} = require('../utilis/databaseOperations/adminPanel/insert');
-const debuglog = require("debug")("development:adminControllers");
 
 
 

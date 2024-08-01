@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const debuglog = require("debug")("development:mongooseConfig");
 // Load environment variables from .env file
 dotenv.config();
 
@@ -11,15 +10,15 @@ module.exports = mongoose.connect(dbURI);
 
 // Connection success and error handling
 mongoose.connection.on('connected', () => {
-  debuglog(`Mongoose connected`);
+  console.log(`Mongoose connected`);
 });
 
 mongoose.connection.on('error', (err) => {
-  debuglog(err);
+  console.log(err);
 });
 
 mongoose.connection.on('disconnected', () => {
-  debuglog('Mongoose disconnected');
+  console.log('Mongoose disconnected');
 });
 
 

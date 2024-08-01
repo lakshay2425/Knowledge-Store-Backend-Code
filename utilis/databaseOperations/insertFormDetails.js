@@ -1,11 +1,10 @@
 const {executeQuery} = require("./executeQuery");
-const debuglog = require("debug")("development:databaseOperationInsertFormDetails");
 
 // Function to insert suggestion details
 module.exports.insertSuggestionDetails = async (user_id, genre, bookName, author) => {
     const query = 'INSERT INTO suggestion_book (user_id, genre, book_name, author) VALUES (?,?,?,?);';
     const params = [user_id, genre, bookName, author];
-    debuglog(params);
+    console.log(params);
     const result = await executeQuery(query, params);
     return { success: true, message: 'Suggestion inserted successfully', result };
   };
@@ -15,7 +14,7 @@ module.exports.insertSuggestionDetails = async (user_id, genre, bookName, author
   module.exports.insertFeedbackDetails = async (user_id, feedback) => {
     const query = 'INSERT INTO feedback (user_id, feedback) VALUES (?,?);';
     const params = [user_id, feedback];
-    debuglog(params);
+    console.log(params);
     const result = await executeQuery(query, params);
     return { success: true, message: 'Feedback inserted successfully', result };
   };
@@ -26,7 +25,7 @@ module.exports.insertSuggestionDetails = async (user_id, genre, bookName, author
   module.exports.insertContactDetails = async (user_id, concern) => {
     const query = 'INSERT INTO contact (user_id, concern) VALUES (?,?);';
     const params = [user_id, concern];
-    debuglog(params);
+    console.log(params);
     const result = await executeQuery(query, params);
     return { success: true, message: 'Contact info inserted successfully', result };
   };

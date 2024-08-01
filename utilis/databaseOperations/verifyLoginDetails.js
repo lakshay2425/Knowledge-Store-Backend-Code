@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const {executeQuery} = require("./executeQuery");
 const generateToken = require('../generateToken');
-const debuglog = require("debug")("development:databaseOperationVerifyLoginDetails");
 
 
 // Function to verify login details
@@ -30,7 +29,7 @@ module.exports.verifyLoginDetails = async (username, password,req, res) => {
         return { success: false, message: "Invalid Credentials" };
       }
     } catch (error) {
-      debuglog('Error verifying login details:', error);
+      console.log0('Error verifying login details:', error);
       return { success: false, message: 'Error verifying login details' };
     }
   };

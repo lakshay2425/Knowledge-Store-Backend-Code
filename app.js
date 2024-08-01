@@ -17,17 +17,12 @@ app.use(cors({
   origin: 'http://localhost:4000', // Frontend URL
   credentials: true // Allow cookies to be sent and received
 }));
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 
 
 app.use("/auth", authRoutes);

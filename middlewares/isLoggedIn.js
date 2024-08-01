@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const { isUserAlreadyExist, executeQuery } = require('../utilis/databaseOperations/executeQuery');
-const debuglog = require("debug")("development:isLoggedInMiddleware");
 
 module.exports.isLoggedIn = async (req, res, next) => {
   try {

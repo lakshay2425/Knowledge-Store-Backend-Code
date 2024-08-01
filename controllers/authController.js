@@ -1,6 +1,5 @@
 const {verifyLoginDetails} = require('../utilis/databaseOperations/verifyLoginDetails');
 const {insertSignupDetails} = require("../utilis/databaseOperations/verifySignupDetails");
-const debuglog = require("debug")("development:authController");
 
 
 module.exports.loginDetails = async (req, res) => {
@@ -16,7 +15,7 @@ module.exports.loginDetails = async (req, res) => {
 module.exports.insertSignupDetails = async (req,res) => {
     try{
     const {fullName, gmail, username ,number, address, password, gender} = req.body;
-    debuglog(fullName, gmail, username ,number, address, password, gender);
+    console.log(fullName, gmail, username ,number, address, password, gender);
     const response = await insertSignupDetails(fullName, gmail ,number, address, password, gender, username,req,res); // Function to insert contact details in the database
     res.json(response);
     } catch (err){

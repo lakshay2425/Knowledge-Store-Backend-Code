@@ -1,7 +1,6 @@
 const {encryptPass} = require("../encryptPassword");
 const {executeQuery} = require("./executeQuery");
 const generateToken = require('../generateToken');
-const debuglog = require("debug")("development:databaseOperationVerifySignupDetails");
 
 
 // Function to check whether the user already exists or not
@@ -16,15 +15,15 @@ const isUserAlreadyExist = async (gmail) => {
   module.exports.insertSignupDetails = async (fullName, gmail, number, address, password, gender, username, req, res) => {
     try {
       const userExists = await isUserAlreadyExist(gmail);
-      debuglog(userExists);
+      console.log(userExists);
       if (!userExists) {
         const passwordHash = await encryptPass(password);
         const query = 'INSERT INTO user_details (full_name, email_id, contact_number, address, passwordHash, gender, username) VALUES (?,?,?,?,?,?,?);';
         const params = [fullName, gmail, number, address, passwordHash, gender, username];
-        debuglog(params);
+        console.log(params);
         await executeQuery(query, params);
         const token = generateToken(gmail);
-        debuglog(token);
+        console.log(token);
         res.cookie('token', token, {
           httpOnly: true,
           secure: false,
@@ -36,7 +35,7 @@ const isUserAlreadyExist = async (gmail) => {
         return { success: false, message: "User Account Already exists" };
       }
     } catch (error) {
-      debuglog('Error inserting signup details:', error);
+      console.log('Error inserting signup details:', error);
       return { success: false, message: 'Error inserting signup details' };
     }
   };
