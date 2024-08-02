@@ -1,15 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const {bookDetails} = require("../controllers/adminControllers");
+const {bookDetails, deleteBook, updateBook} = require("../controllers/adminControllers");
 
 
 router.post("/create", bookDetails );
 
-router.post("/read",);
 
-router.post("/delete",)
+router.delete("/delete/:bookName", deleteBook);
 
-router.post("/update",)
+router.put("/update/:bookName", updateBook);
 
 
 module.exports = router;
