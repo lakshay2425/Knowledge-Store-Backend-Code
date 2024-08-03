@@ -4,11 +4,15 @@ const generateToken = require('../generateToken');
 
 
 // Function to check whether the user already exists or not
-const isUserAlreadyExist = async (gmail) => {
-    const query = 'SELECT * FROM user_details WHERE email_id = ?;';
-    const params = [gmail];
-    const result = await executeQuery(query, params);
-    return result.length > 0; // Return true if user exists, false otherwise
+const isUserAlreadyExist = async (gmail,req,res) => {
+    try {
+      const query = 'SELECT * FROM user_details WHERE email_id  COLLATE utf8mb4_0900_ai_ci  = ?;';
+      const params = [gmail];
+      const result = await executeQuery(query, params);
+      return result.length > 0; // Return true if user exists, false otherwise
+    } catch (error) {
+      res.status(500).send(`Error: Unable to check user exist or not, ${error.message}`);  
+    }
   };
     
   // Function to insert user signup details

@@ -19,14 +19,18 @@ module.exports.insertSignupDetails = async (req,res) => {
     const response = await insertSignupDetails(fullName, gmail ,number, address, password, gender, username,req,res); // Function to insert contact details in the database
     res.json(response);
     } catch (err){
-      res.status(500).send(`Server Error ${err}`);
+      res.status(500).send(`Server Error ${err.message}`);
     }
   };
 
   module.exports.logoutUser = async (req,res)=> {
-    res.cookie("token", "", {
+    try{
+      res.cookie("token", "", {
         httpOnly : true,
         secure : true
     });
     res.redirect("/");
+  } catch(err){
+    res.status(500).send(`Server Error ${err.message}`);
+  }
   };

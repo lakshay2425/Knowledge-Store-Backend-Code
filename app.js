@@ -10,8 +10,7 @@ const authRoutes = require('./routes/authRoutes');
 const formRoutes = require("./routes/formRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 var app = express();
-// const mongoose = require("./config/mongoose");
-
+//const MongoDB = require("./config/mongoose");
 
 app.use(cors({
   origin: 'http://localhost:4000', // Frontend URL

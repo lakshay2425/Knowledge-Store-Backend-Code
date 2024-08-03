@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
-const reviewSchema = mongoose.Schema({
+try{
+    const reviewSchema = mongoose.Schema({
     username : {
         type : String,
         required : true,
@@ -17,5 +18,7 @@ const reviewSchema = mongoose.Schema({
     },
     description : String
 });
-
-module.exports = mongoose.model("review", reviewSchema);
+    module.exports = mongoose.model("review", reviewSchema);
+} catch(err){
+    res.status(500).send(`Server Error : ${err.message}`);
+};

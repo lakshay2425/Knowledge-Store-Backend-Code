@@ -5,7 +5,7 @@ const generateToken = require('../generateToken');
 
 // Function to verify login details
 module.exports.verifyLoginDetails = async (username, password,req, res) => {
-    const query = 'SELECT username, passwordHash, email_id FROM user_details WHERE username = ?;';
+    const query = 'SELECT username, passwordHash, email_id FROM user_details WHERE username COLLATE utf8mb4_0900_ai_ci  = ?;';
     const params = [username];
     try {
       const results = await executeQuery(query, params);

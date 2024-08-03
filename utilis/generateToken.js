@@ -1,8 +1,11 @@
 const jwt = require('jsonwebtoken');
 
-
-function generateToken(data){
-    return jwt.sign({data}, config.get("SECRET"), { expiresIn: '1h' });
+try {
+    function generateToken(data){
+        return jwt.sign({data}, config.get("SECRET"), { expiresIn: '1h' });
+    }
+    
+    module.exports = generateToken;
+} catch (error) {
+    res.status(500).send(`Error in generating token`);
 }
-
-module.exports = generateToken;

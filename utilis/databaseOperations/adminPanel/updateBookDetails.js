@@ -5,12 +5,12 @@ const {executeQuery} = require("../executeQuery");
 module.exports.updateBookDetails = async (author, genre, price, quantity, book_name, img_link) => {
     try {
         // Check if the book exists
-        const selectQuery = 'SELECT * FROM book_list WHERE book_name = ?';
+        const selectQuery = 'SELECT * FROM book_list WHERE book_name COLLATE utf8mb4_0900_ai_ci  = ?';
         const selectParams = [book_name];
         const selectResult = await executeQuery(selectQuery, selectParams);
 
         if (selectResult.length > 0){
-            const updationQuery = 'UPDATE book_list SET author = ?, genre = ?, price = ?, Quantity = ?, img_link = ?  WHERE book_name = ?';
+            const updationQuery = 'UPDATE book_list SET author = ?, genre = ?, price = ?, Quantity = ?, img_link = ?  WHERE book_name COLLATE utf8mb4_0900_ai_ci  = ?';
             const updationParams = [author, genre, price, quantity,  img_link ,book_name,];
             const updationResult = await executeQuery(updationQuery,updationParams);
             console.log(updationResult.info);
@@ -24,6 +24,6 @@ module.exports.updateBookDetails = async (author, genre, price, quantity, book_n
         }
     } catch (error) {
         console.error('Error updating book details:', error);
-    return { success: false, message: 'Failed in updating book details', error: error.message };
+        return { success: false, message: 'Failed in updating book details', error: error.message };
     }
   };

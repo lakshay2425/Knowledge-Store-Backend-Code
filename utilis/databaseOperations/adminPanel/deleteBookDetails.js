@@ -4,7 +4,7 @@ const { executeQuery } = require("../executeQuery");
 module.exports.deleteBookDetails = async (book_name) => {
   try {
     // Check if the book exists
-    const selectQuery = 'SELECT * FROM book_list WHERE book_name = ?';
+    const selectQuery = 'SELECT * FROM book_list WHERE book_name COLLATE utf8mb4_0900_ai_ci  = ?';
     const selectParams = [book_name];
     console.log(selectParams);
     const selectResult = await executeQuery(selectQuery, selectParams);

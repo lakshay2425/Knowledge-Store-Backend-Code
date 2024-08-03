@@ -9,7 +9,7 @@ module.exports.bookDetails = async (req,res) => {
     console.log(response);
     res.json(response);
     } catch (err){
-      res.status(500).send(`Server Error ${err}`);
+      res.status(500).send(`Server Error ${err.message}`);
     }
   };
 
@@ -20,7 +20,7 @@ module.exports.deleteBook = async (req,res) => {
     const response = await deleteBookDetails(bookName);
     res.json(response);
   } catch (error) {
-    res.status(500).send(`Server Error ${err}`);
+    res.status(500).send(`Server Error ${err.message}`);
   }
 };
 
@@ -30,6 +30,6 @@ module.exports.updateBook = async (req,res) => {
     const response = await updateBookDetails(author, genre, price, Quantity, book_name, img_link);
     res.json(response);
   } catch (error) {
-    res.status(500).send(`Server Error ${error}`);
+    res.status(500).send(`Server Error ${error.message}`);
   }
 }
