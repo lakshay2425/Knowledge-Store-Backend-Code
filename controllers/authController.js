@@ -6,6 +6,7 @@ module.exports.loginDetails = async (req, res) => {
     try {
       const { username, password } = req.body;
       const response = await verifyLoginDetails(username, password, req, res);
+      console.log(response);
       res.json(response);
     } catch (err) {
       res.status(401).send('Unauthorized');

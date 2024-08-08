@@ -38,3 +38,15 @@ module.exports.fetchData = async () => {
       return { success: false, message: `Failed to fetch books data by genre ${error.message}` };
     }
   };  
+
+  module.exports.fetchBookDetails = async(bookData) =>{
+    try {
+      const bookNamesString = bookData.map(book => `'${book}'`).join(", ");
+      const query = `SELECT * FROM book_list WHERE book_name COLLATE utf8mb4_0900_ai_ci IN (${bookNamesString})`;
+      const result = await executeQuery(query);
+      return { success: true, message: 'Fetched books', result };
+    } catch (error) {
+      console.log(`Error fetching data:${error.message}, databaseOperation:fetchData`);
+      return { success: false, message: `Failed to fetch books data, ${error.message}` };
+    }
+  };

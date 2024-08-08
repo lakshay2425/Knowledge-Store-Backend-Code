@@ -9,13 +9,31 @@ require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const formRoutes = require("./routes/formRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const userRoutes = require("./routes/users");
 var app = express();
-//const MongoDB = require("./config/mongoose");
+const MongoDB = require("./config/mongoose");
+//const redis = require("./config/redis");
+
+
+
+MongoDB();
 
 app.use(cors({
   origin: 'http://localhost:4000', // Frontend URL
   credentials: true // Allow cookies to be sent and received
 }));
+
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src 'self'");
+  next();
+});
+
+
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -28,6 +46,7 @@ app.use("/auth", authRoutes);
 app.use("/forms", formRoutes)
 app.use('/', indexRouter);
 app.use("/admin", adminRoutes);
+app.use("/user", userRoutes);
 
 /* Checking Node environment value
 console.log(process.env.NODE_ENV);
@@ -61,7 +80,6 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
 });
 
 

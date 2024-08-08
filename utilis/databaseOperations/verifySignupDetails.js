@@ -24,15 +24,20 @@ const isUserAlreadyExist = async (gmail,req,res) => {
         const passwordHash = await encryptPass(password);
         const query = 'INSERT INTO user_details (full_name, email_id, contact_number, address, passwordHash, gender, username) VALUES (?,?,?,?,?,?,?);';
         const params = [fullName, gmail, number, address, passwordHash, gender, username];
-        console.log(params);
         await executeQuery(query, params);
         const token = generateToken(gmail);
         console.log(token);
         res.cookie('token', token, {
-          httpOnly: true,
+          httpOnly: false,
           secure: false,
           maxAge: 5 * 60 * 60 * 1000,
-          path: '/' // Ensure this path is correct
+          sameSite: 'none' // Ensure the cookie is sent with cross-origin requests
+        });
+        res.cookie('role', "user", {
+          httpOnly: false,
+          secure: false,
+          maxAge: 5 * 60 * 60 * 1000,
+          sameSite: 'none' // Ensure the cookie is sent with cross-origin requests
         });
         return { success: true, message: "Signup successful" };
       } else {

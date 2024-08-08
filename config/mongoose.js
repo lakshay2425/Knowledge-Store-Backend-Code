@@ -18,9 +18,9 @@ async function connectToDatabase() {
 }
 
 // Connection success and error handling
-mongoose.connection.on('connected', () => {
-  console.log('Mongoose connected');
-});
+// mongoose.connection.on('connected', () => {
+//   console.log('Mongoose connected');
+// });
 
 mongoose.connection.on('error', (err) => {
   console.error('Mongoose connection error:', err);

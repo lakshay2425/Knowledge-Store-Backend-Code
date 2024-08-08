@@ -29,7 +29,7 @@
 
 const mysql = require('mysql2');
 // require('dotenv').dotenv.config();;
-const config = require("config")
+const config = require("config");
 
 const pool = mysql.createPool({
   host: config.get("DB_HOST"),
