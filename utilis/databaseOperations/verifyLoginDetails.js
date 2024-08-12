@@ -12,7 +12,6 @@ module.exports.verifyLoginDetails = async (username, password,req, res) => {
       const result = await bcrypt.compare(password, hash);
       if (result) {
         const token = generateToken(gmail);
-        console.log(token);
         res.cookie('token', token, {
           httpOnly: false,
           secure: false,
@@ -41,9 +40,8 @@ module.exports.verifyLoginDetails = async (username, password,req, res) => {
       } else {
         const query = 'SELECT username, passwordHash, email_id FROM user_details WHERE username COLLATE utf8mb4_0900_ai_ci  = ?;';
         const params = [username];
-        console.log(`User : ${username}`);
         const results = await executeQuery(query, params);
-        console.log(`User : ${results}`);
+
         const role = "user";
         const response = await verify(results,res,role);
         return response;

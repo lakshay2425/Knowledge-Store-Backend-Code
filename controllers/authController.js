@@ -24,14 +24,26 @@ module.exports.insertSignupDetails = async (req,res) => {
     }
   };
 
-  module.exports.logoutUser = async (req,res)=> {
-    try{
-      res.cookie("token", "", {
-        httpOnly : true,
-        secure : true
-    });
-    res.redirect("/");
-  } catch(err){
-    res.status(500).send(`Server Error ${err.message}`);
-  }
+  module.exports.logoutUser = async (req, res) => {
+    try {
+      // Set the 'token' cookie to expire immediately
+      res.cookie('token', "", {
+        httpOnly: false, // Set according to your needs
+        secure: false,  // Set to true if using HTTPS in production
+        expires: new Date(0), // Expire the cookie immediately
+      });
+  
+      // Set the 'role' cookie to expire immediately
+      res.cookie('role', "", {
+        httpOnly: false, // Set according to your needs
+        secure: false,  // Set to true if using HTTPS in production
+        expires: new Date(0), // Expire the cookie immediately
+      });
+  
+      // Send a single response with a success message
+      res.status(200).json({ message: "User logged out successfully" });
+    } catch (err) {
+      res.status(500).json({ error: `Server Error: ${err.message}` });
+    }
   };
+  
