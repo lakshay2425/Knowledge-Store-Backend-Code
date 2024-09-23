@@ -5,6 +5,12 @@ const {insertSignupDetails} = require("../utilis/databaseOperations/verifySignup
 module.exports.loginDetails = async (req, res) => {
     try {
       const { username, password } = req.body;
+      //console.log(req.body);
+      if(!username || !password){
+        return res.status(400).json({
+          message : "All fields are required"
+        })
+      }
       const response = await verifyLoginDetails(username, password, req, res);
       console.log(response);
       res.json(response);
@@ -16,7 +22,13 @@ module.exports.loginDetails = async (req, res) => {
 module.exports.insertSignupDetails = async (req,res) => {
     try{
     const {fullName, gmail, username ,number, address, password, gender} = req.body;
-    console.log(fullName, gmail, username ,number, address, password, gender);
+    if(!fullName || !gmail || !username || !number || !address || !password){
+      return res.status(400).json({
+        message : "All fields are necessary",
+        success : false
+      })
+    }
+    //console.log(fullName, gmail, username ,number, address, password, gender);
     const response = await insertSignupDetails(fullName, gmail ,number, address, password, gender, username,req,res); // Function to insert contact details in the database
     res.json(response);
     } catch (err){
@@ -24,6 +36,8 @@ module.exports.insertSignupDetails = async (req,res) => {
     }
   };
 
+
+  //Function to logout the user
   module.exports.logoutUser = async (req, res) => {
     try {
       // Set the 'token' cookie to expire immediately

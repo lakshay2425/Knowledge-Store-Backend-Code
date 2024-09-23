@@ -1,29 +1,31 @@
-const {fetchBook, fetchBooks,  fetchData} = require('../utilis/databaseOperations/fetchData');
+const  bookModel = require("../models/bookInfo");
 
+
+//Function to fetch book details from database
 module.exports.fetchBooks = async function(req,res){
     try {
-      const books = await fetchData(); // Function to fetch data from the database
+      const books = await bookModel.find(); // Function to fetch data from the database
+      console.log(books.length);
       res.json(books);
     } catch (error) {
       res.status(500).send(`Server Error, ${error.message}`);
     }
   };
 
-module.exports.fetchData = async function(req,res){
-    try {
-      const {genre} = req.params;
-      const books = await fetchBooks(genre); //Functio to fetch books data category wise from the database
-      res.json(books);
-    } catch (error) {
-      res.status(500).send(`Server Error ${error.message}`);
-    }
-  }
 
+//Function to fetch specific book details 
 module.exports.fetchBook = async function(req,res){
   try {
     const {bookName} = req.params;
-    const book = await fetchBook(bookName); //Function to fetch book data for the search functionality
-    res.json(book);
+    if(!bookName){
+      return res.status(404).json({
+        status: "Book Name is missing",
+        success : false
+      })
+    }
+    //console.log(bookName);
+    const book = await bookModel.findOne({title : bookName}); //Function to fetch book data for the search functionality
+    res.status(200).json({message: "Book details fetched", book});
   } catch (error) {
     console.error(`Error in fetchBook: ${error.message}`);
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });  }

@@ -7,4 +7,5 @@ router.get('/logout', logoutUser);
 router.post('/signupDetails', insertSignupDetails);
   
 
+
 module.exports = router;

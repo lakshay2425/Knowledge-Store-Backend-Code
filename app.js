@@ -12,8 +12,6 @@ const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/users");
 var app = express();
 const MongoDB = require("./config/mongoose");
-//const redis = require("./config/redis");
-
 
 
 MongoDB();
@@ -34,7 +32,6 @@ app.use((req, res, next) => {
 });
 
 
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -47,25 +44,6 @@ app.use("/forms", formRoutes)
 app.use('/', indexRouter);
 app.use("/admin", adminRoutes);
 app.use("/user", userRoutes);
-
-/* Checking Node environment value
-console.log(process.env.NODE_ENV);
-
-app.get("/", (req,res)=>{
-  res.cookie("name", "Lakshay",{
-    httpOnly: true,
-    secure: false,
-    maxAge: 5 * 60 * 60 * 1000,
-    path: '/' // Ensure this path is correct
-  });
-  res.send("Hello");
-})
-
-app.get("/read", (req,res)=>{
-  res.send(req.cookies.name);
-})
-*/
-
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
