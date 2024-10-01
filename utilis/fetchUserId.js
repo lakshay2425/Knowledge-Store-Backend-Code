@@ -9,7 +9,8 @@ const userId = async (emailId) =>{
         })
     }
     //console.log(emailId, "from fetchUSerId function");
-    const userDetails = await User.findOne({emailId});
+    const regex = new RegExp(emailId, 'i'); // Case-insensitive regular expression
+    const userDetails = await User.findOne({regex});
     //console.log(userDetails, "From fetchUserId Utilis function");
     return userDetails;
 };

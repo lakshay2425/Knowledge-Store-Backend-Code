@@ -5,7 +5,7 @@ const  bookModel = require("../models/bookInfo");
 module.exports.fetchBooks = async function(req,res){
     try {
       const books = await bookModel.find(); // Function to fetch data from the database
-      console.log(books.length);
+      //console.log(books.length);
       res.json(books);
     } catch (error) {
       res.status(500).send(`Server Error, ${error.message}`);
@@ -24,7 +24,8 @@ module.exports.fetchBook = async function(req,res){
       })
     }
     //console.log(bookName);
-    const book = await bookModel.findOne({title : bookName}); //Function to fetch book data for the search functionality
+    const regex = new RegExp(bookName, 'i'); // Case-insensitive regular expression
+    const book = await bookModel.findOne({title : regex}); //Function to fetch book data for the search functionality
     res.status(200).json({message: "Book details fetched", book});
   } catch (error) {
     console.error(`Error in fetchBook: ${error.message}`);

@@ -30,8 +30,9 @@ module.exports.deleteBook = async (req,res) => {
         success : false
       })
     }
-    console.log(bookName);
-    const response = await bookModel.findOneAndDelete({title : bookName});
+    //console.log(bookName);
+    const regexBook = new RegExp(bookName, 'i'); // Case-insensitive regular expression
+    const response = await bookModel.findOneAndDelete({title : regexBook});
     console.log(response);
     res.json(response);
   } catch (error) {

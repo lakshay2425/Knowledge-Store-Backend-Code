@@ -41,8 +41,9 @@ module.exports.addToWishlist = async (req, res) => {
 module.exports.fetchWishlistData = async (req,res) => {
     try {
         const email = req.body.email;
-        console.log(email);
-        const data = await wishlistModel.find({email : email});
+        //console.log(email);
+        const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
+        const data = await wishlistModel.find({email : regex});
         const booksName = data.map(book => book.bookName); 
         const bookDetails = await bookModel.find({title : {$in : booksName}});
         res.status(200).json(bookDetails);
@@ -57,8 +58,6 @@ module.exports.addToCart = async (req, res) => {
   try {
     const { bookName } = req.params;
     const {email} = req.body; // assuming you have user data available in req.user
-
-
     if (!bookName || !email) {
       return res.status(400).json({ error: "Book name and email is required" });
     };
@@ -84,11 +83,12 @@ module.exports.fetchCartData = async (req,res) => {
         return res.status(400).json({ error: "Email is required" });
       };
 
-      console.log(email, "From fetch cart data function");
-      const data = await cartModel.find({email});
-      console.log(data, "From fetch cart data function");
+      //console.log(email, "From fetch cart data function");
+      const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
+      const data = await cartModel.find({regex});
+      //console.log(data, "From fetch cart data function");
       const booksName = data.map(book => book.bookName); 
-      console.log(booksName, "From fetch cart data function");
+      //console.log(booksName, "From fetch cart data function");
       const bookDetails = await bookModel.find({title : {$in : booksName}});
       res.status(200).json(bookDetails);
   } catch (error) {
@@ -110,9 +110,11 @@ module.exports.deleteCartProduct = async(req,res) =>{
         success : fasle
       })
     }
-    console.log(bookName, email);
-    const data = await cartModel.findOneAndDelete({$and : [{bookName : bookName}, {email : email}]});
-    res.status(200).json({message :"Book Deleted Successfully", bookName});
+    //console.log(bookName, email);
+    const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
+    const regexBook = new RegExp(bookName, 'i'); // Case-insensitive regular expression
+    const data = await cartModel.findOneAndDelete({$and : [{bookName : regexBook}, {email : regex}]});
+    res.status(200).json({message :"Book Deleted Successfully", regexBook});
 } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: `Server error ${error.message}` });
@@ -132,8 +134,10 @@ module.exports.deleteWishlistProduct = async(req,res) =>{
       })
     }
 
-    console.log(bookName, email);
-    const data = await wishlistModel.findOneAndDelete({$and : [{bookName : bookName}, {email : email}]});
+    //console.log(bookName, email);
+    const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
+    const regexBook = new RegExp(bookName, 'i'); // Case-insensitive regular expression
+    const data = await wishlistModel.findOneAndDelete({$and : [{bookName : regexBook}, {email : regex}]});
     res.status(200).json({message :"Book Deleted Successfully", bookName});
 } catch (error) {
     console.error(error.message);
