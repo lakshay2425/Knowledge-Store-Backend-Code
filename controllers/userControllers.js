@@ -148,7 +148,7 @@ module.exports.deleteWishlistProduct = async(req,res) =>{
 
 module.exports.profileDetails = async (req,res)=> {
   const {email} = req.body;
-  
+
   if(!email){
     return res.status(404).json({
       message : "Email is required"
@@ -161,15 +161,18 @@ module.exports.profileDetails = async (req,res)=> {
 
   if(numberOfOrders > 0){
     const userOrderDetails = await orders.find({emailId : email});
+    const number = userOrderDetails.length;
     return res.status(200).json({
       message : "User Profile Details and Order Details fetched successfully",
       orderDetails : userOrderDetails,
-      userDetails: userDetails
+      userDetails: userDetails,
+      orders : number
     })
   }
 
   return res.status(200).json({
-    message : "User Profile Details fetched successfully, User has no orders",
+    message : "User Profile Details fetched successfully",
+    orders : 0,
     userDetails: userDetails
   })
 }
