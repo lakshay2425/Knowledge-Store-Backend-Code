@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const {addToWishlist, fetchWishlistData, deleteWishlistProduct,deleteCartProduct,addToCart, fetchCartData} = require("../controllers/userControllers");
+const {addToWishlist, fetchWishlistData, profileDetails,deleteWishlistProduct,deleteCartProduct,addToCart, fetchCartData} = require("../controllers/userControllers");
 
 
 router.post('/:bookName/wishlist', addToWishlist);
@@ -9,6 +9,7 @@ router.post('/:bookName/cart', addToCart);
 router.post("/cart", fetchCartData);
 router.delete("/:bookName/cart/delete", deleteCartProduct);
 router.delete("/:bookName/wishlist/delete", deleteWishlistProduct);
+router.get("/profile", profileDetails);
 
 module.exports = router;
 

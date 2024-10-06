@@ -2,7 +2,8 @@ const wishlistModel = require("../models/wishlist");
 const cartModel = require("../models/cart");
 const itemSchema = require("../utilis/joiValidator");
 const  bookModel = require("../models/bookInfo");
-
+const userModel = require("../models/user");
+const orders = require("../models/order");
 
 const validateInput = (bookName, email) => {
   const { error, value } = itemSchema.validate({bookName, email});
@@ -143,4 +144,32 @@ module.exports.deleteWishlistProduct = async(req,res) =>{
     console.error(error.message);
     res.status(500).json({ error: `Server error ${error.message}` });
 }
+}
+
+module.exports.profileDetails = async (req,res)=> {
+  const {email} = req.body;
+  
+  if(!email){
+    return res.status(404).json({
+      message : "Email is required"
+    })
+  }
+  console.log("Email", email);
+
+  const userDetails = await userModel.findOne({ emailId: email }).select('-passwordHash');
+  const numberOfOrders = userDetails.numberOfOrders;
+
+  if(numberOfOrders > 0){
+    const userOrderDetails = await orders.find({emailId : email});
+    return res.status(200).json({
+      message : "User Profile Details and Order Details fetched successfully",
+      orderDetails : userOrderDetails,
+      userDetails: userDetails
+    })
+  }
+
+  return res.status(200).json({
+    message : "User Profile Details fetched successfully, User has no orders",
+    userDetails: userDetails
+  })
 }
