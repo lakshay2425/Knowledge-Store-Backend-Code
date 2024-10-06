@@ -7,7 +7,7 @@ const Admin = require("../../models/admin");
 const isUserAlreadyExist = async (gmail,res) => {
     try {
       const adminDetails = await Admin.findOne({emailId : gmail});
-      console.log(adminDetails, "Checking whether user exist or not");
+      //console.log(adminDetails, "Checking whether user exist or not");
       if(!adminDetails){
         const userDetails = await userModel.findOne({emailId : gmail})
         return userDetails;
@@ -21,29 +21,30 @@ const isUserAlreadyExist = async (gmail,res) => {
   // Function to insert user signup details
   module.exports.insertSignupDetails = async (fullName, gmail, number, address, password, gender, username, req, res) => {
     try {
+      console.log(fullName, gmail, number, address, password, gender, username, "User Details From verifySignupDetails.jsx ")
       const userExists = await isUserAlreadyExist(gmail);
-      //console.log(userExists);
+      console.log(userExists, "From verifySignupDetails.jsx checking user exist or not");
       if (!userExists) {
         const passwordHash = await encryptPass(password);
-        const user = await userModel.create({fullName, emailId : gmail, contactNumber : number, address, passwordHash, gender, username})
+        const user = await userModel.create({fullName, emailId : gmail, contactNumber : number, passwordHash, gender, username})
         console.log(user, "After creating user document in db");
         const token = generateToken(gmail);
-        //console.log(token, "From Creating user");
+        console.log(token, "From Creating user from verifySignupDetails.jsx");
         res.cookie('token', token, {
           httpOnly: false,
           secure: false,
           maxAge: 5 * 60 * 60 * 1000,
-          sameSite: 'none' // Ensure the cookie is sent with cross-origin requests
+          // sameSite: 'none' // Ensure the cookie is sent with cross-origin requests
         });
         res.cookie('role', "user", {
           httpOnly: false,
           secure: false,
           maxAge: 5 * 60 * 60 * 1000,
-          sameSite: 'none' // Ensure the cookie is sent with cross-origin requests
+          //sameSite: 'none' // Ensure the cookie is sent with cross-origin requests
         });
         return { success: true, message: "Signup successful", user };
       } else {
-        return {  message: "User Account Already exists" };
+        return {    exists : true, message: "User Account Already exists" };
       }
     } catch (error) {
       console.log('Error inserting signup details:', error);

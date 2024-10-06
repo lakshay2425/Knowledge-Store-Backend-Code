@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
     contactNumber: { type: String, required: true },
     address: { type: String },
     passwordHash: { type: String, required: true },
-    gender: { type: String, required: true, enum: ['male', 'female', 'other'] },
+    gender: { type: String, required: true},
     username: { type: String, required: true, unique: true, lowercase: true },
     preferences: [{ type: String }],
     createdAt: { type: Date, default: Date.now },

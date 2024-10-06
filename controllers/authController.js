@@ -22,7 +22,8 @@ module.exports.loginDetails = async (req, res) => {
 module.exports.insertSignupDetails = async (req,res) => {
     try{
     const {fullName, gmail, username ,number, address, password, gender} = req.body;
-    if(!fullName || !gmail || !username || !number || !address || !password){
+    //console.log(fullName, gmail, username ,number, address, password, gender, "User Details from auth controller")
+    if(!fullName || !gmail || !username || !number || !password){
       return res.status(400).json({
         message : "All fields are necessary",
         success : false

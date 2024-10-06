@@ -7,15 +7,8 @@ const User = require("../../models/user");
 // Function to verify login details
 module.exports.verifyLoginDetails = async (username, password, req, res) => {
   try {
-    if (!username || !password) {
-      res.status(400).json({
-        message: "password and username are required"
-      })
-      return;
-    }
-
     async function verify(results, res, role) {
-      if (!results && !role) {
+      if (!results || !role) {
         return res.status(404).json({
           message: "All field are required to login"
         })
