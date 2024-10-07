@@ -9,7 +9,7 @@ router.post('/:bookName/cart', addToCart);
 router.post("/cart", fetchCartData);
 router.delete("/:bookName/cart/delete", deleteCartProduct);
 router.delete("/:bookName/wishlist/delete", deleteWishlistProduct);
-router.get("/profile", profileDetails);
+router.post("/profile", profileDetails);
 
 module.exports = router;
 

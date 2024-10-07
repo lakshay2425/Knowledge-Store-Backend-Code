@@ -160,15 +160,18 @@ module.exports.deleteWishlistProduct = async (req, res) => {
 
 module.exports.profileDetails = async (req, res) => {
   const { email } = req.body;
+  //console.log(req.body);
 
   if (!email) {
+    //console.log("Email Missing");
     return res.status(404).json({
       message: "Email is required"
     })
   }
-  console.log("Email", email);
+  //console.log("Email", email);
 
   const userDetails = await userModel.findOne({ emailId: email }).select('-passwordHash');
+  //console.log(userDetails);
   const numberOfOrders = userDetails.numberOfOrders;
 
   if (numberOfOrders > 0) {
