@@ -17,6 +17,7 @@ module.exports.fetchBooks = async function(req,res){
 module.exports.fetchBook = async function(req,res){
   try {
     const {bookName} = req.params;
+    //console.log(bookName);
     if(!bookName){
       return res.status(404).json({
         status: "Book Name is missing",

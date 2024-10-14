@@ -21,26 +21,20 @@ const isUserAlreadyExist = async (gmail,res) => {
   // Function to insert user signup details
   module.exports.insertSignupDetails = async (fullName, gmail, number, address, password, gender, username, req, res) => {
     try {
-      console.log(fullName, gmail, number, address, password, gender, username, "User Details From verifySignupDetails.jsx ")
+      //console.log(fullName, gmail, number, address, password, gender, username, "User Details From verifySignupDetails.jsx ")
       const userExists = await isUserAlreadyExist(gmail);
-      console.log(userExists, "From verifySignupDetails.jsx checking user exist or not");
+      //console.log(userExists, "From verifySignupDetails.jsx checking user exist or not");
       if (!userExists) {
         const passwordHash = await encryptPass(password);
         const user = await userModel.create({fullName, emailId : gmail, contactNumber : number, passwordHash, gender, username})
-        console.log(user, "After creating user document in db");
-        const token = generateToken(gmail);
-        console.log(token, "From Creating user from verifySignupDetails.jsx");
+        //console.log(user, "After creating user document in db");
+        const token = generateToken("user");
+        //console.log(token, "From Creating user from verifySignupDetails.jsx");
         res.cookie('token', token, {
           httpOnly: false,
           secure: false,
           maxAge: 5 * 60 * 60 * 1000,
           // sameSite: 'none' // Ensure the cookie is sent with cross-origin requests
-        });
-        res.cookie('role', "user", {
-          httpOnly: false,
-          secure: false,
-          maxAge: 5 * 60 * 60 * 1000,
-          //sameSite: 'none' // Ensure the cookie is sent with cross-origin requests
         });
         return { success: true, message: "Signup successful", user };
       } else {

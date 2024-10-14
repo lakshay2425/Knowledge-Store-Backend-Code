@@ -13,24 +13,18 @@ module.exports.verifyLoginDetails = async (username, password, req, res) => {
           message: "All field are required to login"
         })
       }
-      console.log(role, ",Details from verifyLoginDetails function");
+      //console.log(role, ",Details from verifyLoginDetails function");
       const hash = results.passwordHash;
-      const gmail = results.emailId;
       const result = await bcrypt.compare(password, hash);
-      console.log(result, "After comparing password");
+      //console.log(result, "After comparing password");
       if (result) {
-        const token = generateToken(gmail);
+        const token = generateToken(role);
         res.cookie('token', token, {
           httpOnly: false,
           secure: false,
           maxAge: 5 * 60 * 60 * 1000,
         });
-        res.cookie('role', role, {
-          httpOnly: false,
-          secure: false,
-          maxAge: 5 * 60 * 60 * 1000,
-        });
-        return { success: true, message: "Login successful", token };
+        return { success: true, message: "Login successful", token , userData : results};
       } else {
         return { success: false, message: "Invalid Credentials" };
       }
@@ -45,23 +39,23 @@ module.exports.verifyLoginDetails = async (username, password, req, res) => {
         res.status(404).json({
           message: "User doesn't exist"
         })
-        console.log("User don't exist");
+        //console.log("User don't exist");
         return;
       }
-      console.log("User Details", userDetails);
+      //console.log("User Details", userDetails);
       const role = "user";
-      console.log(role, "ROle");
+      //console.log(role, "ROle");
       const response = await verify(userDetails, res, role);
       return response;
     }
     else {
       const role = "admin";
-      console.log(role, "Role");
+      //console.log(role, "Role");
       const response = await verify(isAdmin, res, role);
       return response;
     }
   } catch (error) {
-    console.log('Error:', error.message);
+    //console.log('Error:', error.message);
     return { success: false, error: error.message };
   }
 };
