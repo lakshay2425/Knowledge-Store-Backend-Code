@@ -87,20 +87,21 @@ module.exports.fetchCartData = async (req, res) => {
     //console.log(email, "From fetch cart data function");
     const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
     //console.log(regex);
-    const data = await cartModel.find({ email : regex });
-    if (data.length> 0) {
+    const data = await cartModel.find({ email: regex });
+    if (data.length > 0) {
       console.log(data, "From fetch cart data function");
       const booksName = data.map(book => book.bookName);
       //console.log(booksName, "From fetch cart data function");
       const bookDetails = await bookModel.find({ title: { $in: booksName } });
       //console.log(bookDetails.length, "From Fetching user cart data function")
-      return res.status(200).json({ message: "User Cart data fetch successfully", bookDetails,
-        numberOfBooks : bookDetails.length
-       });
-    }else{
+      return res.status(200).json({
+        message: "User Cart data fetch successfully", bookDetails,
+        numberOfBooks: bookDetails.length
+      });
+    } else {
       return res.status(200).json({
         message: "No books added to cart",
-        numberOfBooks : 0
+        numberOfBooks: 0
       })
     }
 
@@ -174,20 +175,31 @@ module.exports.profileDetails = async (req, res) => {
   //console.log(userDetails);
   const numberOfOrders = userDetails.numberOfOrders;
 
-  if (numberOfOrders > 0) {
-    const userOrderDetails = await orders.find({ emailId: email });
-    const number = userOrderDetails.length;
-    return res.status(200).json({
-      message: "User Profile Details and Order Details fetched successfully",
-      orderDetails: userOrderDetails,
-      userDetails: userDetails,
-      orders: number
-    })
-  }
-
   return res.status(200).json({
     message: "User Profile Details fetched successfully",
     orders: 0,
     userDetails: userDetails
+  })
+}
+
+module.exports.fetchOrders = async (req,res) => {
+  const { email } = req.body;
+  //console.log(req.body);
+
+  if (!email) {
+    //console.log("Email Missing");
+    return res.status(404).json({
+      message: "Email is required"
+    })
+  }
+  //console.log("Email", email);
+
+  const userOrderDetails = await orders.find({ emailId: email });
+  const number = userOrderDetails.length;
+  return res.status(200).json({
+    message: "User Profile Details and Order Details fetched successfully",
+    orderDetails: userOrderDetails,
+    userDetails: userDetails,
+    orders: number
   })
 }
