@@ -31,7 +31,17 @@ module.exports.fetchBook = async function (req, res) {
       }
     }); //Function to fetch book data for the search functionality
     // console.log(book, "Book Details");
-    res.status(200).json({ message: "Book details fetched", bookDetails: book });
+    if(!book){
+      return res.status(200).json({
+        message : "Book not found",
+        found : false
+      })
+    }
+    res.status(200).json({ 
+      message: "Book details fetched", 
+      bookDetails: book,
+      found : true 
+    });
   } catch (error) {
     console.error(`Error in fetchBook: ${error.message}`);
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });

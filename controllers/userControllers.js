@@ -24,11 +24,11 @@ module.exports.addToWishlist = async (req, res) => {
       return res.status(400).json({ error: "Book name and email is required" });
     }
 
-    console.log(email, bookName, "From add to wishlist function");
+    //console.log(email, bookName, "From add to wishlist function");
 
     //   Use Joi.attempt() to validate the data against your schema
     const value = validateInput(bookName, email);
-    console.log(value);
+    //console.log(value);
     const wishlist = await wishlistModel.create({ bookName, email });
     res.status(201).json(wishlist);
   } catch (error) {
@@ -63,10 +63,10 @@ module.exports.addToCart = async (req, res) => {
       return res.status(400).json({ error: "Book name and email is required" });
     };
 
-    console.log(email, bookName, "From add to cart function");
+    //console.log(email, bookName, "From add to cart function");
     //   Use Joi.attempt() to validate the data against your schema
     const value = validateInput(bookName, email);
-    console.log(value);
+    //console.log(value);
 
     const wishlist = await cartModel.create({ bookName, email });
     res.status(201).json(wishlist);
@@ -89,7 +89,7 @@ module.exports.fetchCartData = async (req, res) => {
     //console.log(regex);
     const data = await cartModel.find({ email: regex });
     if (data.length > 0) {
-      console.log(data, "From fetch cart data function");
+      //console.log(data, "From fetch cart data function");
       const booksName = data.map(book => book.bookName);
       //console.log(booksName, "From fetch cart data function");
       const bookDetails = await bookModel.find({ title: { $in: booksName } });
