@@ -1,5 +1,5 @@
 const bookModel = require("../models/bookInfo");
-
+const orders = require("../models/order");
 
  // Function to insert book details in the database
 module.exports.bookDetails = async (req,res) => {
@@ -59,5 +59,22 @@ module.exports.updateBook = async (req,res) => {
     res.json(response);
   } catch (error) {
     res.status(500).send(`Server Error ${error.message}`);
+  }
+}
+
+module.exports.fetchAllUserOrders = async (req,res)=>{
+  const orderDetails = await orders.find();
+  //console.log(orderDetails);
+  if(orderDetails.length == 0){
+    return res.status(200).json({
+      message : "No orders yet",
+      orders : 0
+    })
+  }else{
+    return res.status(200).json({
+      message: "All users orders fetched successfully",
+      ordersInfo : orderDetails,
+      orders : orderDetails.length
+    })
   }
 }

@@ -182,7 +182,7 @@ module.exports.profileDetails = async (req, res) => {
   })
 }
 
-module.exports.fetchOrders = async (req,res) => {
+module.exports.fetchOrders = async (req, res) => {
   const { email } = req.body;
   //console.log(req.body);
 
@@ -202,4 +202,67 @@ module.exports.fetchOrders = async (req,res) => {
     userDetails: userDetails,
     orders: number
   })
+}
+
+module.exports.placeOrder = async (req, res) => {
+  try {
+    const { email, bookName, numberOfDays } = req.body;
+    if (!email || !bookName || !numberOfDays) {
+      return res.status(500).json({
+        message: "All field are necessary"
+      })
+    }
+    //console.log(email, bookName, numberOfDays);
+    const user = await userModel.findOne({ emailId: email });
+    if (!user) {
+      return res.status(500).json({
+        message: "User doesn't exist. Login first"
+      })
+    }
+    const userFullName = user.fullName;
+    const userContactNumber = user.contactNumber;
+    const userName = user.username;
+    const bookDetails = await bookModel.findOne({ title: bookName });
+    if (!bookDetails) {
+      return res.status(404).json({
+        message: "Book doesn't exist in the database"
+      })
+    }
+    const quantity = bookDetails.quantity;
+    if (quantity == 0) {
+      return res.status(300).json({
+        message: "Book isn't available"
+      })
+    } else {
+      const bookGenre = bookDetails.genres;
+      const securityDeposit = bookDetails.price;
+      const rentCharges = numberOfDays * 20;
+      const order = await orders.create({
+        fullName: userFullName,
+        securityDeposit,
+        rentCharges,
+        emailId: email,
+        genre: bookGenre,
+        bookName,
+        contactNumber: userContactNumber,
+        username: userName,
+        days: numberOfDays
+      })
+      const updatedBookDetails = await bookModel.findOneAndUpdate(
+        { title: bookName },
+        { quantity: quantity - 1 },
+        { new: true }
+      )
+      return res.status(201).json({
+        message: "Orders place successfully",
+        orderInfo: order
+      })
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({
+      message: "Failed to place the order",
+      error: error.message
+    })
+  }
 }
