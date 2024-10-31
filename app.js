@@ -1,16 +1,17 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const config = require("config");
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 const cors = require('cors');
-var indexRouter = require('./routes/index');
+const indexRouter = require('./routes/index');
 const authRoutes = require('./routes/authRoutes');
 const formRoutes = require("./routes/formRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const userRoutes = require("./routes/users");
 const rateLimit = require('express-rate-limit');
-var app = express();
+const app = express();
 const MongoDB = require("./config/mongoose");
 
 
@@ -44,8 +45,9 @@ const authLimiter = rateLimit({
   }
 });
 
+const frontendURL = config.get("FRONTEND_URL");
 app.use(cors({
-  origin: 'http://localhost:4000', // Frontend URL
+  origin: frontendURL, // Frontend URL
   credentials: true // Allow cookies to be sent and received
 }));
 

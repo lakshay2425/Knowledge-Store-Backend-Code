@@ -266,3 +266,57 @@ module.exports.placeOrder = async (req, res) => {
     })
   }
 }
+
+module.exports.cancelOrder = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const orderDetails = await orders.findOneAndUpdate(
+      { _id: orderId },
+      { status: " cancelled" },
+      { new: true }
+    );
+    const book = orderDetails.bookName;
+    const bookDetails = await bookModel.findOneAndUpdate(
+      { title: book },
+      { quantity: 1 },
+      { new: true }
+    );
+    res.status(200).json({
+      message : "Order cancelled successfully",
+      success : true
+    })
+  } catch (error) {
+    console.log(error.message);
+    const orderDetails = await orders.findOneAndUpdate(
+      { _id: orderId },
+      { status: "ordered" }
+    );
+    res.status(404).json({
+      message: error.message
+    })
+  }
+}
+
+module.exports.fetchSpecificOrderDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const orderDetails = await orders.find({ _id: id });
+    if (!orderDetails) {
+      return res.status(404).json({
+        message: "No order exist with this order id",
+        success: false
+      })
+    } else {
+      res.status(200).json({
+        message: "Order Details found",
+        orderInfo: orderDetails,
+        success: true
+      })
+    }
+  } catch (error) {
+    console.log(error.message);
+    res.status(404).json({
+      message: error.message
+    })
+  }
+}

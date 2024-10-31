@@ -11,6 +11,8 @@ const OrderSchema = new mongoose.Schema({
     securityDeposit : {type : Number, required : true},
     rentCharges : {type : Number, required : true},
     days : {type : Number, required : true},
+    paymentMethod : {type : String, default: "Cash"},
+    status : {type : String , default : "ordered"},
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 }, {
