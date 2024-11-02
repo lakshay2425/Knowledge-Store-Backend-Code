@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const {addToWishlist, fetchWishlistData, profileDetails,deleteWishlistProduct,deleteCartProduct,addToCart, fetchCartData, fetchOrders, placeOrder, cancelOrder, fetchSpecificOrderDetails} = require("../controllers/userControllers");
+const {addToWishlist, fetchWishlistData, profileDetails,deleteWishlistProduct,deleteCartProduct,addToCart, fetchCartData, userTestimonial,bookReview, fetchOrders, placeOrder, cancelOrder, fetchSpecificOrderDetails, fetchUserTestimonial, fetchReveiw} = require("../controllers/userControllers");
 
 
 router.post('/:bookName/wishlist', addToWishlist);
@@ -14,6 +14,10 @@ router.post("/orders", fetchOrders);
 router.post("/placeOrder", placeOrder);
 router.patch("/cancelOrder", cancelOrder);
 router.get("/order/:id", fetchSpecificOrderDetails);
+router.post("/bookReview", bookReview);
+router.post("/testimonial",userTestimonial);
+router.get("/fetchTestimonial", fetchUserTestimonial);
+router.get("/fetchBookReview/:bookName", fetchReveiw);
 
 module.exports = router;
 

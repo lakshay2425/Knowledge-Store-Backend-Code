@@ -10,15 +10,20 @@ try{
     bookName : {
         type : String,
         required : true,
-        minLength : 20
+        minLength : 10
     },
     stars : {
         type : Number,
         required : true,
+        max : 5
     },
-    description : String
+    description : {
+        type: String,
+        required : true,
+        minLength:10
+    }
 });
-    module.exports = mongoose.model("review", reviewSchema);
+    module.exports = mongoose.model.review || mongoose.model("review", reviewSchema);
 } catch(err){
     res.status(500).send(`Server Error : ${err.message}`);
 };

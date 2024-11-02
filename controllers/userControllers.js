@@ -4,6 +4,8 @@ const itemSchema = require("../utilis/joiValidator");
 const bookModel = require("../models/bookInfo");
 const userModel = require("../models/user");
 const orders = require("../models/order");
+const testimonalModel = require("../models/testimonial");
+const bookReviewModel = require("../models/review");
 
 const validateInput = (bookName, email) => {
   const { error, value } = itemSchema.validate({ bookName, email });
@@ -282,8 +284,8 @@ module.exports.cancelOrder = async (req, res) => {
       { new: true }
     );
     res.status(200).json({
-      message : "Order cancelled successfully",
-      success : true
+      message: "Order cancelled successfully",
+      success: true
     })
   } catch (error) {
     console.log(error.message);
@@ -317,6 +319,109 @@ module.exports.fetchSpecificOrderDetails = async (req, res) => {
     console.log(error.message);
     res.status(404).json({
       message: error.message
+    })
+  }
+}
+
+
+module.exports.bookReview = async (req, res) => {
+  try {
+    const { bookName, stars, username, description } = req.body;
+    if (!bookName || !stars || !username || !description) {
+      return res.status(400).json({
+        success: false,
+        message: "All field are required"
+      })
+    }
+    const model = await bookReviewModel.create({
+      username,
+      bookName,
+      stars,
+      description
+    })
+    res.status(200).json({
+      message: "Reveiw added successfully",
+      success: true
+    })
+  } catch (error) {
+    console.log("Error", error.message);
+    res.status(404).json({
+      error: error.message,
+      success: false
+    })
+  }
+}
+
+module.exports.userTestimonial = async (req, res) => {
+  try {
+    const { username, testimonial } = req.body;
+    if (!username || !testimonial) {
+      return res.status(400).json({
+        message: "All fields are required"
+      })
+    }
+    const details = await testimonalModel.create({
+      username,
+      testimonial
+    });
+    res.status(200).json({
+      message: "Testimonials added successfully",
+      success: true
+    })
+
+  } catch (error) {
+    console.log("Error", error.message);
+    res.status(404).json({
+      error: error.message,
+      success: false
+    })
+  }
+}
+
+module.exports.fetchUserTestimonial = async (req, res) => {
+  try {
+    const allUserTestimonial = await testimonalModel.find();
+    return res.status(200).json({
+      message: "All testimonials fetched",
+      success: true,
+      data: allUserTestimonial
+    })
+  } catch (error) {
+    console.log("Error", error.message);
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    })
+  }
+}
+
+module.exports.fetchReveiw = async (req, res) => {
+  try {
+    const { bookName } = req.params;
+    if(!bookName){
+      return res.status(404).json({
+        message : "BookName is required",
+        success : false
+      })
+    }
+    const bookReviews = await bookReviewModel.find({ bookName });
+    if(bookReviews.length == 0){
+      return res.status(200).json({
+        success: true,
+        message :  "No reviews found for this book",
+        reviews : 0
+      })
+    }
+    return res.status(200).json({
+      message: "Fetched reviews successfully",
+      reviewData: bookReviews,
+      reviews : bookReviews.length
+    })
+  } catch (error) {
+    console.log("Error", error.message);
+    return res.status(500).json({
+      success: false,
+      error: error.message
     })
   }
 }

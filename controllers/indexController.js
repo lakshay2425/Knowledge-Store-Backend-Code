@@ -31,19 +31,39 @@ module.exports.fetchBook = async function (req, res) {
       }
     }); //Function to fetch book data for the search functionality
     // console.log(book, "Book Details");
-    if(!book){
+    if (!book) {
       return res.status(200).json({
-        message : "Book not found",
-        found : false
+        message: "Book not found",
+        found: false
       })
     }
-    res.status(200).json({ 
-      message: "Book details fetched", 
+    res.status(200).json({
+      message: "Book details fetched",
       bookDetails: book,
-      found : true 
+      found: true
     });
   } catch (error) {
     console.error(`Error in fetchBook: ${error.message}`);
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
-}  
+}
+
+
+module.exports.fetchRecommendedBooks = async (req, res) => {
+  try {
+    const bookArray = ["Rich Dad Poor Dad", "Pyschology of Money", "The Power of Your Subconcious Mind", "How Business Storytelling Works", "Atomic Habits", "Building a Second Brain"];
+    const recommendedBookDetails = await bookModel.find({ title: { $in: bookArray } });
+    console.log("Book Details", recommendedBookDetails.length,recommendedBookDetails);
+    return res.status(200).json({
+      message: "Book fetched successfully",
+      data: recommendedBookDetails,
+      success: true
+    })
+  } catch (error) {
+    console.log("Error", error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server Error'
+    })
+  }
+}
