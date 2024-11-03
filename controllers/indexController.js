@@ -5,7 +5,6 @@ const bookModel = require("../models/bookInfo");
 module.exports.fetchBooks = async function (req, res) {
   try {
     const books = await bookModel.find(); // Function to fetch data from the database
-    //console.log(books.length);
     res.json(books);
   } catch (error) {
     res.status(500).send(`Server Error, ${error.message}`);
@@ -51,9 +50,8 @@ module.exports.fetchBook = async function (req, res) {
 
 module.exports.fetchRecommendedBooks = async (req, res) => {
   try {
-    const bookArray = ["Rich Dad Poor Dad", "Pyschology of Money", "The Power of Your Subconcious Mind", "How Business Storytelling Works", "Atomic Habits", "Building a Second Brain"];
+    const bookArray = ["Rich Dad Poor Dad","Zero to One", "Pyschology of Money", "The Power of Your Subconcious Mind", "How Business Storytelling Works", "Atomic Habits", "Building a Second Brain"];
     const recommendedBookDetails = await bookModel.find({ title: { $in: bookArray } });
-    console.log("Book Details", recommendedBookDetails.length,recommendedBookDetails);
     return res.status(200).json({
       message: "Book fetched successfully",
       data: recommendedBookDetails,
