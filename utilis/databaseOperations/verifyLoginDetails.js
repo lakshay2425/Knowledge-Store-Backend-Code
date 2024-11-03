@@ -13,10 +13,8 @@ module.exports.verifyLoginDetails = async (username, password, req, res) => {
           message: "All field are required to login"
         })
       }
-      //console.log(role, ",Details from verifyLoginDetails function");
       const hash = results.passwordHash;
       const result = await bcrypt.compare(password, hash);
-      //console.log(result, "After comparing password");
       if (result) {
         const token = generateToken(role);
         res.cookie('token', token, {
@@ -24,39 +22,30 @@ module.exports.verifyLoginDetails = async (username, password, req, res) => {
           secure: false,
           maxAge: 5 * 60 * 60 * 1000,
         });
-        return { success: true, message: "Login successful", token , userData : results};
+        return res.status(200).json({ success: true, message: "Login successful", token , userData : results});
       } else {
-        return { success: false, message: "Invalid Credentials" };
+        return res.status(404).json({ success: false, message: "Invalid Credentials" });
       }
     }
 
-    //console.log(username, password, "checking params");
     const isAdmin = await Admin.findOne({ username: username });
-    //console.log(isAdmin, "Checking user is admin or not");
     if (!isAdmin) {
       const userDetails = await User.findOne({ username });
       if (!userDetails) {
-        res.status(404).json({
+        return res.status(404).json({
+          success : false,
           message: "User doesn't exist"
-        })
-        //console.log("User don't exist");
-        return;
+        });
       }
-      //console.log("User Details", userDetails);
       const role = "user";
-      //console.log(role, "ROle");
       const response = await verify(userDetails, res, role);
-      return response;
     }
     else {
       const role = "admin";
-      //console.log(role, "Role");
       const response = await verify(isAdmin, res, role);
-      return response;
     }
   } catch (error) {
-    //console.log('Error:', error.message);
-    return { success: false, error: error.message };
+    return res.status(404).json({ success: false, message: error.message });
   }
 };
 

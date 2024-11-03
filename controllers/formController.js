@@ -49,7 +49,8 @@ module.exports.contactDetails = async (req,res) => {
       const { concern, gmail} = req.body;
       if(!gmail || !concern){
         return res.status(400).json({
-          message: "Gmail and concern is required"
+          success : false,
+          message: "All fields are required"
         })
       }
       const userDetail = await userDetails(gmail);
@@ -59,6 +60,9 @@ module.exports.contactDetails = async (req,res) => {
       const response = await contactModel.create({concern, userId}); 
       res.json(response);
     } catch (err){
-      res.status(500).send(`Server Error ${err.message}`);
+      res.status(500).json({
+        success: false,
+        message: `Server Error ${err.message}`
+      });
     }
   };

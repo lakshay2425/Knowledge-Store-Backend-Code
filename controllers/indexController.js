@@ -5,9 +5,16 @@ const bookModel = require("../models/bookInfo");
 module.exports.fetchBooks = async function (req, res) {
   try {
     const books = await bookModel.find(); // Function to fetch data from the database
-    res.json(books);
+    res.status(200).json({
+      data : books,
+      success : true,
+      message : " Book details fetched successfully"
+    });
   } catch (error) {
-    res.status(500).send(`Server Error, ${error.message}`);
+    res.status(500).json({
+      message :  "Error fetching books",
+      success : false
+    });
   }
 };
 
@@ -28,18 +35,17 @@ module.exports.fetchBook = async function (req, res) {
       $text: {
         $search: `${regex}`
       }
-    }); //Function to fetch book data for the search functionality
-    // console.log(book, "Book Details");
+    });
     if (!book) {
       return res.status(200).json({
-        message: "Book not found",
-        found: false
+        message: "Book you're trying to search isn't  available",
+        success : false
       })
     }
     res.status(200).json({
       message: "Book details fetched",
-      bookDetails: book,
-      found: true
+      data: book,
+      success: true
     });
   } catch (error) {
     console.error(`Error in fetchBook: ${error.message}`);
@@ -53,7 +59,7 @@ module.exports.fetchRecommendedBooks = async (req, res) => {
     const bookArray = ["Rich Dad Poor Dad","Zero to One", "Pyschology of Money", "The Power of Your Subconcious Mind", "How Business Storytelling Works", "Atomic Habits", "Building a Second Brain"];
     const recommendedBookDetails = await bookModel.find({ title: { $in: bookArray } });
     return res.status(200).json({
-      message: "Book fetched successfully",
+      message: "Recommended Books fetched successfully",
       data: recommendedBookDetails,
       success: true
     })
