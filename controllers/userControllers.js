@@ -425,3 +425,32 @@ module.exports.fetchReveiw = async (req, res) => {
     })
   }
 }
+
+module.exports.deleteUserAccount = async (req,res)=>{
+  try {
+    const {username} = req.body;
+    const user = await userModel.findOne({username});
+    const orderDetails = await orders.find({$and : [{username}, { status : {$in : ["ordered", "delievered"]}}]});
+    if(orderDetails.length>0){
+      return res.status(404).json({
+        message : "Account cannot be deleted becuase you have incoming or delivered orders",
+        success : false
+      })
+    }else{
+      await userModel.deleteOne({username});
+      return res.status(200).json({
+        message : "Account deleted successfully",
+        success : true
+      })
+    }
+    
+    
+  } catch (error) {
+    console.log("Error",error.message);
+    return res.status(500).json({
+      message : "Failed to delete the user account",
+      success : false,
+      error : error.message
+    })
+  }
+}

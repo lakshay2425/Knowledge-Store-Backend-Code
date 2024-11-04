@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 // Define the OrderSchema
 const OrderSchema = new mongoose.Schema({
     fullName: { type: String, required: true },
-    emailId: { type: String, required: true, unique: true, lowercase: true },
+    emailId: { type: String, required: true, lowercase: true },
     contactNumber: { type: String, required: true },
     bookName : {type : String, required : true},
-    username: { type: String, required: true, unique: true, lowercase: true },
+    username: { type: String, required: true, lowercase: true },
     genre: { type: String },
     securityDeposit : {type : Number, required : true},
     rentCharges : {type : Number, required : true},
