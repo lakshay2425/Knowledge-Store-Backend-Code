@@ -15,7 +15,18 @@ const validateInput = (bookName, email) => {
   return value;
 };
 
-
+async function addBookToWishlist(bookName, email) {
+  try {
+    //   Use Joi.attempt() to validate the data against your schema
+    const value = validateInput(bookName, email);
+    //console.log(value);
+    const wishlist = await wishlistModel.create({ bookName, email });
+    //console.log(wishlist, "From adding book to wishlist");
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
 //Function to add a book to wishlist
 module.exports.addToWishlist = async (req, res) => {
   try {
@@ -25,17 +36,25 @@ module.exports.addToWishlist = async (req, res) => {
     if (!bookName || !email) {
       return res.status(400).json({ error: "Book name and email is required" });
     }
-
-    //console.log(email, bookName, "From add to wishlist function");
-
-    //   Use Joi.attempt() to validate the data against your schema
-    const value = validateInput(bookName, email);
-    //console.log(value);
-    const wishlist = await wishlistModel.create({ bookName, email });
-    res.status(201).json(wishlist);
+    const result = addBookToWishlist(bookName,email);
+    if(result){
+      return res.status(201).json({
+        message : "Book added to the Wishlist",
+        success: true
+      })
+    }else{
+      return res.status(404).json({
+        message : "Failed to place the order Try again later",
+        success : false
+      })
+    }
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ 
+      success : false,
+      message : error.message,
+      error: "Server error"
+     });
   }
 };
 
@@ -56,6 +75,18 @@ module.exports.fetchWishlistData = async (req, res) => {
   }
 };
 
+async function addBookToCart(bookName, email){
+  try {
+    //Use Joi.attempt() to validate the data against your schema
+    const value = validateInput(bookName, email);
+    const cart = await cartModel.create({ bookName, email });
+    //console.log(cart, "Cart Details");
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 //Function to add a book to user cart section
 module.exports.addToCart = async (req, res) => {
   try {
@@ -64,14 +95,18 @@ module.exports.addToCart = async (req, res) => {
     if (!bookName || !email) {
       return res.status(400).json({ error: "Book name and email is required" });
     };
-
-    //console.log(email, bookName, "From add to cart function");
-    //   Use Joi.attempt() to validate the data against your schema
-    const value = validateInput(bookName, email);
-    //console.log(value);
-
-    const wishlist = await cartModel.create({ bookName, email });
-    res.status(201).json(wishlist);
+    const result = await addBookToCart(bookName, email);
+    if(result){
+      return res.status(201).json({
+        message : "Book added to cart successfully", 
+        success : true
+      })
+    }else{
+      return res.status(404).json({
+        success : false,
+        message : "Falied to add book to cart"
+      })
+    }
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
@@ -206,6 +241,57 @@ module.exports.fetchOrders = async (req, res) => {
   })
 }
 
+async function placeBookOrder(email, bookName, numberOfDays) {
+  try {
+    const user = await userModel.findOne({ emailId: email });
+  if (!user) {
+    return res.status(500).json({
+      message: "User doesn't exist. Login first"
+    })
+  }
+  const userFullName = user.fullName;
+  const userContactNumber = user.contactNumber;
+  const userName = user.username;
+  const bookDetails = await bookModel.findOne({ title: bookName });
+  if (!bookDetails) {
+    return res.status(404).json({
+      message: "Book doesn't exist in the database"
+    })
+  }
+  const quantity = bookDetails.quantity;
+  if (quantity == 0) {
+    return res.status(300).json({
+      message: "Book isn't available"
+    })
+  } else {
+    const bookGenre = bookDetails.genres;
+    const securityDeposit = bookDetails.price;
+    const rentCharges = numberOfDays * 20;
+    const order = await orders.create({
+      fullName: userFullName,
+      securityDeposit,
+      rentCharges,
+      emailId: email,
+      genre: bookGenre,
+      bookName,
+      contactNumber: userContactNumber,
+      username: userName,
+      days: numberOfDays
+    })
+    const updatedBookDetails = await bookModel.findOneAndUpdate(
+      { title: bookName },
+      { quantity: quantity - 1 },
+      { new: true }
+    )
+    return true;
+  }
+  } catch (error) {
+   console.log("Error", error.message);
+   return false;
+   //throw error("Failed to place the order") 
+  }
+}
+
 module.exports.placeOrder = async (req, res) => {
   try {
     const { email, bookName, numberOfDays } = req.body;
@@ -215,49 +301,16 @@ module.exports.placeOrder = async (req, res) => {
       })
     }
     //console.log(email, bookName, numberOfDays);
-    const user = await userModel.findOne({ emailId: email });
-    if (!user) {
-      return res.status(500).json({
-        message: "User doesn't exist. Login first"
-      })
-    }
-    const userFullName = user.fullName;
-    const userContactNumber = user.contactNumber;
-    const userName = user.username;
-    const bookDetails = await bookModel.findOne({ title: bookName });
-    if (!bookDetails) {
-      return res.status(404).json({
-        message: "Book doesn't exist in the database"
-      })
-    }
-    const quantity = bookDetails.quantity;
-    if (quantity == 0) {
-      return res.status(300).json({
-        message: "Book isn't available"
-      })
-    } else {
-      const bookGenre = bookDetails.genres;
-      const securityDeposit = bookDetails.price;
-      const rentCharges = numberOfDays * 20;
-      const order = await orders.create({
-        fullName: userFullName,
-        securityDeposit,
-        rentCharges,
-        emailId: email,
-        genre: bookGenre,
-        bookName,
-        contactNumber: userContactNumber,
-        username: userName,
-        days: numberOfDays
-      })
-      const updatedBookDetails = await bookModel.findOneAndUpdate(
-        { title: bookName },
-        { quantity: quantity - 1 },
-        { new: true }
-      )
+    const result = placeBookOrder(email, bookName, numberOfDays);
+    if(result){
       return res.status(201).json({
         message: "Orders place successfully",
-        orderInfo: order
+        success : true
+      })
+    }else{
+      return res.status(404).json({
+        message : "Failed to place the order Try again later",
+        success : false
       })
     }
   } catch (error) {
@@ -398,24 +451,24 @@ module.exports.fetchUserTestimonial = async (req, res) => {
 module.exports.fetchReveiw = async (req, res) => {
   try {
     const { bookName } = req.params;
-    if(!bookName){
+    if (!bookName) {
       return res.status(404).json({
-        message : "BookName is required",
-        success : false
+        message: "BookName is required",
+        success: false
       })
     }
     const bookReviews = await bookReviewModel.find({ bookName });
-    if(bookReviews.length == 0){
+    if (bookReviews.length == 0) {
       return res.status(200).json({
         success: true,
-        message :  "No reviews found for this book",
-        reviews : 0
+        message: "No reviews found for this book",
+        reviews: 0
       })
     }
     return res.status(200).json({
       message: "Fetched reviews successfully",
       reviewData: bookReviews,
-      reviews : bookReviews.length
+      reviews: bookReviews.length
     })
   } catch (error) {
     console.log("Error", error.message);
@@ -426,31 +479,99 @@ module.exports.fetchReveiw = async (req, res) => {
   }
 }
 
-module.exports.deleteUserAccount = async (req,res)=>{
+module.exports.deleteUserAccount = async (req, res) => {
   try {
-    const {username} = req.body;
-    const user = await userModel.findOne({username});
-    const orderDetails = await orders.find({$and : [{username}, { status : {$in : ["ordered", "delievered"]}}]});
-    if(orderDetails.length>0){
+    const { username } = req.body;
+    const user = await userModel.findOne({ username });
+    const orderDetails = await orders.find({ $and: [{ username }, { status: { $in: ["ordered", "delievered"] } }] });
+    if (orderDetails.length > 0) {
       return res.status(404).json({
-        message : "Account cannot be deleted becuase you have incoming or delivered orders",
-        success : false
+        message: "Account cannot be deleted becuase you have incoming or delivered orders",
+        success: false
       })
-    }else{
-      await userModel.deleteOne({username});
+    } else {
+      await userModel.deleteOne({ username });
       return res.status(200).json({
-        message : "Account deleted successfully",
-        success : true
+        message: "Account deleted successfully",
+        success: true
       })
     }
-    
-    
+
+
   } catch (error) {
-    console.log("Error",error.message);
+    console.log("Error", error.message);
     return res.status(500).json({
-      message : "Failed to delete the user account",
-      success : false,
-      error : error.message
+      message: "Failed to delete the user account",
+      success: false,
+      error: error.message
+    })
+  }
+}
+
+module.exports.moveBookFromWishlisttoCart = async (req,res)=>{
+  try {
+    const {bookName, email, numberOfDays} = req.body;
+    const bookDetailsFromWishlist = await wishlistModel.findOneAndDelete({$and : [
+      {bookName},
+      {email}
+    ]});
+    const result = await addBookToCart(bookName, email);
+    if(result){
+      return res.status(201).json({
+        message : "Book added to cart successfully", 
+        success : true
+      })
+    }else{
+      const bookDetails = await wishlistModel.create({
+        email, 
+        bookName
+      })
+      return res.status(404).json({
+        success : false,
+        message : "Falied to add book to cart"
+      })
+    }
+  } catch (error) {
+    console.log("Error", error.message);
+    const bookDetails = await wishlistModel.create({
+      email, 
+      bookName
+    })
+    return res.status(500).json({
+      message : error.message,
+      success : false
+    })
+  }
+};
+
+module.exports.moveBookFromCartToWishlist = async (req,res)=>{
+  try {
+    const {bookName, email} = req.body;
+    const bookDetailsFromCart = await cartModel.findOneAndDelete({$and : [
+    {bookName},
+    {email}
+    ]});
+    const result =  await addBookToWishlist(bookName,email);
+    if(result){
+      return res.status(201).json({
+        message: "Moved book from  cart to wishlist successfully",
+        success : true
+      })
+    }else{
+      const book = await cartModel.create({
+        bookName,
+        email
+      })
+      return res.status(404).json({
+        message : "Failed to move the book from cart to wishlist Try again later",
+        success : false
+      })
+    }
+  } catch (error) {
+    console.log("Error", error.message);
+    return res.status(500).json({
+      message : error.message,
+      success : false
     })
   }
 }
