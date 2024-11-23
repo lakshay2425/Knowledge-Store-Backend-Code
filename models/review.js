@@ -25,5 +25,7 @@ try{
 });
     module.exports = mongoose.model.review || mongoose.model("review", reviewSchema);
 } catch(err){
-    res.status(500).send(`Server Error : ${err.message}`);
+    res.status(500).json({
+        message : "Error in creating review model"
+    });
 };

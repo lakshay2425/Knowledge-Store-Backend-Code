@@ -154,21 +154,23 @@ module.exports.deleteCartProduct = async (req, res) => {
   try {
     const { email } = req.body;
     const { bookName } = req.params;
-
     if (!email || !bookName) {
       return res.status(404).json({
         message: "Email and bookName is required",
-        success: fasle
+        success: false
       })
     }
     //console.log(bookName, email);
     const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
     const regexBook = new RegExp(bookName, 'i'); // Case-insensitive regular expression
-    const data = await cartModel.findOneAndDelete({ $and: [{ bookName: regexBook }, { email: regex }] });
-    res.status(200).json({ message: "Book Deleted Successfully", regexBook });
+    const response = await cartModel.findOneAndDelete({ $and: [{ bookName: regexBook }, { email: regex }] });
+    res.status(200).json({ message: "Book Deleted Successfully", success : true });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ error: `Server error ${error.message}` });
+    res.status(500).json({ 
+      error: `Server error ${error.message}`,
+      success : false
+     });
   }
 }
 
@@ -546,7 +548,9 @@ module.exports.moveBookFromWishlisttoCart = async (req,res)=>{
 
 module.exports.moveBookFromCartToWishlist = async (req,res)=>{
   try {
-    const {bookName, email} = req.body;
+    console.log(req.body);
+    const {bookName, email} = req.body.data;
+    console.log(req.body);
     const bookDetailsFromCart = await cartModel.findOneAndDelete({$and : [
     {bookName},
     {email}
