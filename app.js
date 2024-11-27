@@ -8,7 +8,10 @@ const cors = require('cors');
 const indexRouter = require('./routes/index');
 const authRoutes = require('./routes/authRoutes');
 const formRoutes = require("./routes/formRoutes");
+const wishlistRoutes = require("./routes/wishlistRoutes")
+const cartRoutes = require("./routes/cartRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const orderRoutes = require("./routes/ordersRoute");
 const userRoutes = require("./routes/users");
 const rateLimit = require('express-rate-limit');
 const app = express();
@@ -69,18 +72,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-// app.use("/auth", authLimiter, authRoutes);
-// app.use("/forms",limiter, formRoutes)
-// app.use('/', limiter,indexRouter);
-// app.use("/admin", adminRoutes);
-// app.use("/user",limiter, userRoutes);
-
-app.use("/auth", authRoutes);
-app.use("/forms", formRoutes)
-app.use('/', indexRouter);
+app.use("/auth", authLimiter, authRoutes);
+app.use("/forms",limiter, formRoutes)
+app.use('/', limiter,indexRouter);
 app.use("/admin", adminRoutes);
-app.use("/user", userRoutes);
-
+app.use("/user",limiter, userRoutes);
+app.use("/wishlist", limiter, wishlistRoutes);
+app.use("/cart", limiter, cartRoutes);
+app.use("/orders", limiter,orderRoutes)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

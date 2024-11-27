@@ -14,5 +14,8 @@ const bcrypt = require('bcrypt');
       });
     };    
   } catch (error) {
-    res.status(500).send(`Error : ${error.message}`);
+    res.status(500).json({
+      error : error.message,
+      success : false
+    });
   }
