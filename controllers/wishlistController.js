@@ -1,6 +1,7 @@
 const bookModel = require("../models/bookInfo");
 const wishlistModel = require("../models/wishlist");
 const itemSchema = require("../utilis/joiValidator");
+const {deleteAllProducts} = require("../utilis/deleteAll"); 
 
 const validateInput = (bookName, email) => {
   const { error, value } = itemSchema.validate({ bookName, email });
@@ -63,9 +64,10 @@ module.exports.fetchWishlistData = async (req, res) => {
         $or: booksName.map(name => ({ title: { $regex: new RegExp(name, 'i') } }))
       });
       res.status(200).json(bookDetails);
-    }else{
-      res.status(200).json({message:"No books found in wishlist",success:false
-        });
+    } else {
+      res.status(200).json({
+        message: "No books found in wishlist", success: false
+      });
     }
   } catch (error) {
     console.error(error.message);
@@ -132,4 +134,27 @@ module.exports.moveBookFromCartToWishlist = async (req, res) => {
       success: false
     })
   }
-}  
+}
+
+module.exports.deleteAllWishlistProduct = async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) {
+      return res.status(400).json({
+        message: "Email is required",
+        success: false
+      })
+    }
+    const response = await deleteAllProducts(email, "wishlist");
+    return res.status(200).json({
+      message : "All wishlist products deleted successfully",
+      success : true
+    })
+  } catch (error){
+    console.log("Error",error.message);
+    return res.status(500).json({
+      success : false,
+      message : "Error in deleting all products, Try again later"
+    })
+  }
+}
