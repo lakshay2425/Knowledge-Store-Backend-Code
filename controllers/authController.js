@@ -1,5 +1,5 @@
-const { verifyLoginDetails } = require('../utilis/databaseOperations/verifyLoginDetails');
-const { insertSignupDetails } = require("../utilis/databaseOperations/verifySignupDetails");
+const { verifyLoginDetails } = require('../utilis/authenticationOperations/verifyLoginDetails');
+const { insertSignupDetails } = require("../utilis/authenticationOperations/verifySignupDetails");
 
 
 module.exports.loginDetails = async (req, res) => {
