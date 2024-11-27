@@ -15,7 +15,10 @@ module.exports.bookDetails = async (req,res) => {
     console.log(response);
     res.json(response);
     } catch (err){
-      res.status(500).send(`Server Error ${err.message}`);
+      res.status(500).json({
+        success : false,
+        error : err.message
+      });
     }
   };
 
@@ -30,35 +33,41 @@ module.exports.deleteBook = async (req,res) => {
         success : false
       })
     }
-    //console.log(bookName);
+
     const regexBook = new RegExp(bookName, 'i'); // Case-insensitive regular expression
     const response = await bookModel.findOneAndDelete({title : regexBook});
     console.log(response);
     res.json(response);
   } catch (error) {
-    res.status(500).send(`Server Error ${err.message}`);
+    res.status(500).json({
+      success : false,
+      error : error.message
+    });
   }
 };
 
 //Function to update book details in the database
 module.exports.updateBook = async (req,res) => {
   try {
-    const {author, genre, price, Quantity, book_name, img_link} = req.body;
-    if(!price || !Quantity || !genre || !book_name || !author || !img_link){
+    const {author, genres, price, title, quantity, imageLink} = req.body;
+    if(!price || !quantity || !genres || !title || !imageLink){
       return res.status(400).json({
         message : "All Fields are necessary",
         success : false
       })
     }
     const response = await bookModel.findOneAndUpdate(
-      {title : book_name},
-      {price, quantity : Quantity ,genre, title : book_name, author, imageLink : img_link},
+      {title : title},
+      {price, quantity ,genre : genres, title , author, imageLink},
       {new : true}
     );
     console.log(response);
     res.json(response);
   } catch (error) {
-    res.status(500).send(`Server Error ${error.message}`);
+    res.status(500).json({
+      success : false,
+      error : error.message
+    });
   }
 }
 
