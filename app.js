@@ -21,7 +21,7 @@ const MongoDB = require("./config/mongoose");
 MongoDB();
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 1 * 60 * 1000, // 1 minutes
   max: 10, // limit each IP to 10 requests per windowMs
   standardHeaders: true, // Return rate limit info in the RateLimit-* headers
   legacyHeaders: false, // Disable the X-RateLimit-* headers
@@ -35,8 +35,8 @@ const limiter = rateLimit({
 });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 10 requests per windowMs
+  windowMs: 5 * 60 * 1000, // 15 minutes
+  max: 10, // limit each IP to 10 requests per windowMs
   standardHeaders: true, // Return rate limit info in the RateLimit-* headers
   legacyHeaders: false, // Disable the X-RateLimit-* headers
   handler: (req, res, next) => {
