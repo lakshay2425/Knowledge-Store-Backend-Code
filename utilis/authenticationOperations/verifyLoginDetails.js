@@ -24,7 +24,7 @@ module.exports.verifyLoginDetails = async (username, password, req, res) => {
         });
         return res.status(200).json({ success: true, message: "Login successful", token , userData : results});
       } else {
-        return res.status(404).json({ success: false, message: "Invalid Credentials" });
+        return res.status(401).json({ success: false, message: "Invalid Credentials" });
       }
     }
 
