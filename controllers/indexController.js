@@ -29,7 +29,6 @@ module.exports.fetchBook = async function (req, res) {
         success: false
       })
     }
-    //console.log(bookName);
     const regex = new RegExp(bookName, 'i'); // Case-insensitive regular expression
     const book = await bookModel.findOne({
       $text: {
@@ -48,7 +47,6 @@ module.exports.fetchBook = async function (req, res) {
       success: true
     });
   } catch (error) {
-    console.error(`Error in fetchBook: ${error.message}`);
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
 }
@@ -64,7 +62,6 @@ module.exports.fetchRecommendedBooks = async (req, res) => {
       success: true
     })
   } catch (error) {
-    console.log("Error", error.message);
     return res.status(500).json({
       success: false,
       message: 'Server Error'

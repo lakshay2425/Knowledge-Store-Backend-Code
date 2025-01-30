@@ -7,7 +7,6 @@ const Admin = require("../../models/admin");
 const isUserAlreadyExist = async (gmail, res) => {
   try {
     const adminDetails = await Admin.findOne({ emailId: gmail });
-    //console.log(adminDetails, "Checking whether user exist or not");
     if (!adminDetails) {
       const userDetails = await userModel.findOne({ emailId: gmail })
       return userDetails;
@@ -41,7 +40,6 @@ module.exports.insertSignupDetails = async (fullName, gmail, number, address, pa
       return res.status(409).json({ exists: true, message: "User  Account Already exists" });
     }
   } catch (error) {
-    console.log('Error inserting signup details:', error);
     return { success: false, message: 'Error in creating user account. Please try again after some time', error: error.message };
   }
 };

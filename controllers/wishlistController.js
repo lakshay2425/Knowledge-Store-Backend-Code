@@ -89,7 +89,6 @@ module.exports.deleteWishlistProduct = async (req, res) => {
       })
     }
 
-    //console.log(bookName, email);
     const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
     const regexBook = new RegExp(bookName, 'i'); // Case-insensitive regular expression
     const data = await wishlistModel.findOneAndDelete({ $and: [{ bookName: regexBook }, { email: regex }] });
@@ -102,9 +101,7 @@ module.exports.deleteWishlistProduct = async (req, res) => {
 
 module.exports.moveBookFromCartToWishlist = async (req, res) => {
   try {
-    console.log(req.body);
     const { bookName, email } = req.body.data;
-    console.log(req.body);
     const bookDetailsFromCart = await cartModel.findOneAndDelete({
       $and: [
         { bookName },
@@ -128,7 +125,6 @@ module.exports.moveBookFromCartToWishlist = async (req, res) => {
       })
     }
   } catch (error) {
-    console.log("Error", error.message);
     return res.status(500).json({
       message: error.message,
       success: false
@@ -151,7 +147,6 @@ module.exports.deleteAllWishlistProduct = async (req, res) => {
       success : true
     })
   } catch (error){
-    console.log("Error",error.message);
     return res.status(500).json({
       success : false,
       message : "Error in deleting all products, Try again later"

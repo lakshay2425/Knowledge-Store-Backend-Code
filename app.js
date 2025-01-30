@@ -22,11 +22,10 @@ MongoDB();
 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minutes
-  max: 30, // limit each IP to 10 requests per windowMs
+  max: 30, // limit each IP to 30 requests per windowMs
   standardHeaders: true, // Return rate limit info in the RateLimit-* headers
   legacyHeaders: false, // Disable the X-RateLimit-* headers
-  handler: (req, res, next) => {
-    console.log(`Rate limit exceeded for IP ${req.ip}`);
+  handler: (res) => {
     res.status(429).json({
       error: "Too Many Requests",
       message: "You have exceeded the rate limit. Please wait 15 minutes before making another request."
@@ -36,11 +35,10 @@ const limiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
-  max: 20, // limit each IP to 10 requests per windowMs
+  max: 20, // limit each IP to 20 requests per windowMs
   standardHeaders: true, // Return rate limit info in the RateLimit-* headers
   legacyHeaders: false, // Disable the X-RateLimit-* headers
-  handler: (req, res, next) => {
-    console.log(`Rate limit exceeded for IP ${req.ip}`);
+  handler: (res) => {
     res.status(429).json({
       error: "Too Many Requests",
       message: "You have exceeded the rate limit. Please wait 15 minutes before making another request."

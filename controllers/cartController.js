@@ -17,7 +17,6 @@ async function addBookToCart(bookName, email) {
     //Use Joi.attempt() to validate the data against your schema
     const value = validateInput(bookName, email);
     const cart = await cartModel.create({ bookName, email });
-    //console.log(cart, "Cart Details");
     return true;
   } catch (error) {
     return false;
@@ -46,7 +45,6 @@ module.exports.addToCart = async (req, res) => {
       })
     }
   } catch (error) {
-    console.error(error.message);
     res.status(500).json({ error: error.message });
   }
 };
@@ -78,7 +76,6 @@ module.exports.fetchCartData = async (req, res) => {
     }
 
   } catch (error) {
-    console.error(error.message);
     res.status(500).json({ error: `Server error ${error.message}` });
   }
 };
@@ -95,13 +92,11 @@ module.exports.deleteCartProduct = async (req, res) => {
         success: false
       })
     }
-    //console.log(bookName, email);
     const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
     const regexBook = new RegExp(bookName, 'i'); // Case-insensitive regular expression
     const response = await cartModel.findOneAndDelete({ $and: [{ bookName: regexBook }, { email: regex }] });
     res.status(200).json({ message: "Book Deleted Successfully", success: true, book: bookName });
   } catch (error) {
-    console.error(error.message);
     res.status(500).json({
       error: `Server error ${error.message}`,
       success: false
@@ -135,7 +130,6 @@ module.exports.moveBookFromWishlisttoCart = async (req, res) => {
       })
     }
   } catch (error) {
-    console.log("Error", error.message);
     const bookDetails = await wishlistModel.create({
       email,
       bookName
@@ -163,8 +157,7 @@ module.exports.deleteAllCartProduct = async (req, res) => {
       success : true
     })
   } catch (error) {
-    console.log("Error", error.message);
-    return res.status(500).json({
+     return res.status(500).json({
       success: false,
       message: "Error in deleting all products, Try again later"
     })

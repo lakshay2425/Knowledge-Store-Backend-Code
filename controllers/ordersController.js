@@ -66,9 +66,7 @@ module.exports.fetchOrders = async (req, res) => {
       return true;
     }
     } catch (error) {
-     console.log("Error", error.message);
-     return false;
-     //throw error("Failed to place the order") 
+     return false; 
     }
   }
   
@@ -93,7 +91,6 @@ module.exports.fetchOrders = async (req, res) => {
         })
       }
     } catch (error) {
-      console.log(error.message);
       res.status(500).json({
         message: "Failed to place the order",
         error: error.message
@@ -120,7 +117,6 @@ module.exports.fetchOrders = async (req, res) => {
         success: true
       })
     } catch (error) {
-      console.log(error.message);
       const orderDetails = await orders.findOneAndUpdate(
         { _id: orderId },
         { status: "ordered" }
@@ -148,7 +144,6 @@ module.exports.fetchOrders = async (req, res) => {
         })
       }
     } catch (error) {
-      console.log(error.message);
       res.status(404).json({
         message: error.message
       })

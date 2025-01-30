@@ -5,18 +5,15 @@ const userModel = require("../models/user");
 
 module.exports.profileDetails = async (req, res) => {
   const { email } = req.body;
-  //console.log(req.body);
 
   if (!email) {
-    //console.log("Email Missing");
+
     return res.status(404).json({
       message: "Email is required"
     })
   }
-  //console.log("Email", email);
 
   const userDetails = await userModel.findOne({ emailId: email }).select('-passwordHash');
-  //console.log(userDetails);
   const numberOfOrders = userDetails.numberOfOrders;
 
   return res.status(200).json({
@@ -47,7 +44,6 @@ module.exports.bookReview = async (req, res) => {
       success: true
     })
   } catch (error) {
-    console.log("Error", error.message);
     res.status(404).json({
       error: error.message,
       success: false
@@ -73,7 +69,6 @@ module.exports.userTestimonial = async (req, res) => {
     })
 
   } catch (error) {
-    console.log("Error", error.message);
     res.status(404).json({
       error: error.message,
       success: false
@@ -90,7 +85,6 @@ module.exports.fetchUserTestimonial = async (req, res) => {
       data: allUserTestimonial
     })
   } catch (error) {
-    console.log("Error", error.message);
     return res.status(500).json({
       success: false,
       error: error.message
@@ -121,7 +115,6 @@ module.exports.fetchReveiw = async (req, res) => {
       reviews: bookReviews.length
     })
   } catch (error) {
-    console.log("Error", error.message);
     return res.status(500).json({
       success: false,
       error: error.message
@@ -155,7 +148,6 @@ module.exports.deleteUserAccount = async (req, res) => {
 
 
   } catch (error) {
-    console.log("Error", error.message);
     return res.status(500).json({
       message: "Failed to delete the user account",
       success: false,
@@ -164,4 +156,19 @@ module.exports.deleteUserAccount = async (req, res) => {
   }
 }
 
+
+module.exports.fetchUserDetails = async (req, res) => {
+  try {
+    const userDetail = await userModel.find().select('-passwordHash');
+    return res.status(200).json({
+      message: "User details fetched successfully",
+      userDetails: userDetail
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+}
 

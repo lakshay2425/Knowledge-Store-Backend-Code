@@ -12,7 +12,6 @@ module.exports.bookDetails = async (req,res) => {
       })
     }
     const response = await bookModel.create({price, quantity ,genre, title : book_name, author, imageLink : img_link});
-    console.log(response);
     res.json(response);
     } catch (err){
       res.status(500).json({
@@ -36,7 +35,6 @@ module.exports.deleteBook = async (req,res) => {
 
     const regexBook = new RegExp(bookName, 'i'); // Case-insensitive regular expression
     const response = await bookModel.findOneAndDelete({title : regexBook});
-    console.log(response);
     res.json(response);
   } catch (error) {
     res.status(500).json({
@@ -61,7 +59,6 @@ module.exports.updateBook = async (req,res) => {
       {price, quantity ,genre : genres, title , author, imageLink},
       {new : true}
     );
-    console.log(response);
     res.json(response);
   } catch (error) {
     res.status(500).json({
@@ -73,7 +70,6 @@ module.exports.updateBook = async (req,res) => {
 
 module.exports.fetchAllUserOrders = async (req,res)=>{
   const orderDetails = await orders.find();
-  //console.log(orderDetails);
   if(orderDetails.length == 0){
     return res.status(200).json({
       message : "No orders yet",

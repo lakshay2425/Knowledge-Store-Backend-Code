@@ -5,7 +5,6 @@ const { insertSignupDetails } = require("../utilis/authenticationOperations/veri
 module.exports.loginDetails = async (req, res) => {
   try {
     const { username, password } = req.body;
-    //console.log(req.body);
     if (!username || !password) {
       return res.status(400).json({
         message: "All fields are required",
@@ -24,14 +23,12 @@ module.exports.loginDetails = async (req, res) => {
 module.exports.insertSignupDetails = async (req, res) => {
   try {
     const { fullName, gmail, username, number, address, password, gender } = req.body;
-    //console.log(fullName, gmail, username ,number, address, password, gender, "User Details from auth controller")
     if (!fullName || !gmail || !username || !number || !password) {
       return res.status(400).json({
         message: "All fields are necessary to create a account",
         success: false
       })
     }
-    //console.log(fullName, gmail, username ,number, address, password, gender);
     const response = await insertSignupDetails(fullName, gmail, number, address, password, gender, username, req, res); // Function to insert contact details in the database
   } catch (err) {
     res.status(500).send(`Server Error ${err.message}`);

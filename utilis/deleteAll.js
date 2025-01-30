@@ -11,7 +11,6 @@ module.exports.deleteAllProducts = async (email, type)=>{
             return {success : true, message : "All products deleted from cart"};
         }
     } catch (error) {
-        console.log("Error",error.message);
         return {success : false, error : error.message}
     }
 }
