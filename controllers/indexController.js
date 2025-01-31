@@ -38,13 +38,15 @@ module.exports.fetchBook = async function (req, res) {
     if (!book) {
       return res.status(200).json({
         message: "Book you're trying to search isn't  available",
-        success : false
+        success : false,
+        found: false
       })
     }
     res.status(200).json({
       message: "Book details fetched",
       data: book,
-      success: true
+      success: true,
+      found: true
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server Error', error: error.message });
