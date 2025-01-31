@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
-const config = require("config");
+//const config = require("config");
 
 
-const dbURI = config.get("MONGO_ATLAS_URI");
+//const dbURI = config.get("MONGO_ATLAS_URI");
 //const dbURI = config.get("MONGO_URI");
+const dbURI = process.env.MONGO_URI;
 
 const connectOptions = {
   maxIdleTimeMS: 10000, // Close connections after 10 seconds of inactivity

@@ -1,7 +1,7 @@
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
-const config = require("config");
+//const config = require("config");
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cors = require('cors');
@@ -46,7 +46,8 @@ const authLimiter = rateLimit({
   }
 });
 
-const frontendURL = config.get("FRONTEND_URL");
+// const frontendURL = config.get("FRONTEND_URL");
+const frontendURL = process.env.FRONTEND_URL;
 app.use(cors({
   origin: frontendURL, // Frontend URL
   credentials: true // Allow cookies to be sent and received
