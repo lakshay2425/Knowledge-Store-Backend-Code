@@ -53,15 +53,15 @@ app.use(cors({
   credentials: true // Allow cookies to be sent and received
 }));
 
-app.use((req, res, next) => {
-  res.setHeader('Cache-Control', 'no-store');
-  next();
-});
+// app.use((req, res, next) => {
+//   res.setHeader('Cache-Control', 'no-store');
+//   next();
+// });
 
-app.use((req, res, next) => {
-  res.setHeader("Content-Security-Policy", "default-src 'self'");
-  next();
-});
+// app.use((req, res, next) => {
+//   res.setHeader("Content-Security-Policy", "default-src 'self'");
+//   next();
+// });
 
 
 app.use(logger('dev'));
