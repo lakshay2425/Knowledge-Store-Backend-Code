@@ -19,10 +19,10 @@ module.exports.verifyLoginDetails = async (username, password, req, res) => {
         const token = generateToken(role);
         res.cookie('token', token, {
           httpOnly: false,
-          secure: false,
+          secure: true,
           maxAge: 5 * 60 * 60 * 1000,
         });
-        return res.status(200).json({ success: true, message: "Login successful", token , userData : results});
+        return res.status(200).json({ success: true, message: "Login successful", role , userData : results});
       } else {
         return res.status(401).json({ success: false, message: "Invalid Credentials" });
       }
@@ -38,13 +38,14 @@ module.exports.verifyLoginDetails = async (username, password, req, res) => {
         });
       }
       const role = "user";
-      const response = await verify(userDetails, res, role);
+      await verify(userDetails, res, role);
     }
     else {
       const role = "admin";
-      const response = await verify(isAdmin, res, role);
+      await verify(isAdmin, res, role);
     }
   } catch (error) {
+    console.log(error.message);
     return res.status(404).json({ success: false, message: error.message });
   }
 };

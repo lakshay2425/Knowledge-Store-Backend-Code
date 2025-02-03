@@ -20,21 +20,6 @@ module.exports.loginDetails = async (req, res) => {
   }
 };
 
-module.exports.insertSignupDetails = async (req, res) => {
-  try {
-    const { fullName, gmail, username, number, address, password, gender } = req.body;
-    if (!fullName || !gmail || !username || !number || !password) {
-      return res.status(400).json({
-        message: "All fields are necessary to create a account",
-        success: false
-      })
-    }
-    const response = await insertSignupDetails(fullName, gmail, number, address, password, gender, username, req, res); // Function to insert contact details in the database
-  } catch (err) {
-    res.status(500).send(`Server Error ${err.message}`);
-  }
-};
-
 
 //Function to logout the user
 module.exports.logoutUser = async (req, res) => {

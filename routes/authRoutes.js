@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const {loginDetails, insertSignupDetails, logoutUser} = require('../controllers/authController');
+const {loginDetails, logoutUser} = require('../controllers/authController');
+const {insertSignupDetails} = require("../utilis/authenticationOperations/verifySignupDetails")
 
 router.post('/loginDetails', loginDetails);  
 router.get('/logout', logoutUser);

@@ -19,28 +19,34 @@ const isUserAlreadyExist = async (gmail, res) => {
 };
 
 // Function to insert user signup details
-module.exports.insertSignupDetails = async (fullName, gmail, number, address, password, gender, username, req, res) => {
+module.exports.insertSignupDetails = async (req, res) => {
+  const { fullName, gmail, number, address, password, gender, city, username } = req.body;
   try {
+    if (!fullName || !gmail || !username || !number || !password || !address || !gender || !city) {
+      return res.status(400).json({
+        message: "All fields are necessary to create a account",
+        success: false
+      })
+    }
     const userExists = await isUserAlreadyExist(gmail, res).catch(err => {
       return res.status(500).json({ message: err.message, success: false });
     });
 
     if (!userExists) {
       const passwordHash = await encryptPass(password);
-      const user = await userModel.create({ fullName, emailId: gmail, contactNumber: number, passwordHash, gender, username })
+      const user = await userModel.create({ fullName, emailId: gmail, contactNumber: number, passwordHash, gender, username , address, city})
       const token = generateToken("user");
       res.cookie('token', token, {
         httpOnly: false,
-        secure: false,
+        secure: true,
         maxAge: 5 * 60 * 60 * 1000,
-        // sameSite: 'none' // Ensure the cookie is sent with cross-origin requests
       });
-      return res.status(201).json({ success: true, message: "User Signup successful", data: user });
+      return res.status(201).json({ success: true, message: "User Signup successful", data: user, role: "user" });
     } else {
       return res.status(409).json({ exists: true, message: "User  Account Already exists" });
     }
   } catch (error) {
-    return { success: false, message: 'Error in creating user account. Please try again after some time', error: error.message };
+    return res.status(500).json({ success: false, message: 'Error in creating user account. Please try again after some time', error: error.message });
   }
 };
 

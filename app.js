@@ -46,22 +46,22 @@ const authLimiter = rateLimit({
   }
 });
 
-// const frontendURL = config.get("FRONTEND_URL");
+//const frontendURL = config.get("FRONTEND_URL");
 const frontendURL = process.env.FRONTEND_URL;
 app.use(cors({
   origin: frontendURL, // Frontend URL
   credentials: true // Allow cookies to be sent and received
 }));
 
-// app.use((req, res, next) => {
-//   res.setHeader('Cache-Control', 'no-store');
-//   next();
-// });
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
 
-// app.use((req, res, next) => {
-//   res.setHeader("Content-Security-Policy", "default-src 'self'");
-//   next();
-// });
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src 'self'");
+  next();
+});
 
 
 app.use(logger('dev'));

@@ -12,7 +12,8 @@ const UserSchema = new mongoose.Schema({
     preferences: [{ type: String }],
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
-    numberOfOrders : {type : Number, default : 0}
+    numberOfOrders : {type : Number, default : 0},
+    city : {type: String, required: true}
 }, {
     timestamps: true,
     collection: 'users'
