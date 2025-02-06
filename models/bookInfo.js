@@ -14,7 +14,8 @@ const BookSchema = new mongoose.Schema({
         reviewer: { type: String }
     }],
     createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: Date.now },
+    type : { type : String, required: true}
 }, {
     timestamps: true,
     collection: 'books'

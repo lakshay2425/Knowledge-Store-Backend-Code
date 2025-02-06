@@ -5,13 +5,13 @@ const orders = require("../models/order");
 module.exports.bookDetails = async (req,res) => {
     try{
     const {price, quantity ,genre, book_name, author, img_link} = req.body;
-    if(!price || !quantity || !genre || !book_name || !author || !img_link){
+    if(!price || !quantity || !genre || !book_name || !author || !img_link || !type){
       return res.status(400).json({
         message : "All Fields are necessary",
         success : false
       })
     }
-    const response = await bookModel.create({price, quantity ,genre, title : book_name, author, imageLink : img_link});
+    const response = await bookModel.create({price, quantity ,genre, title : book_name, author, type, imageLink : img_link});
     res.json(response);
     } catch (err){
       res.status(500).json({

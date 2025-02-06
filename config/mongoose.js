@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
-//const config = require("config");
 
 
-//const dbURI = config.get("MONGO_ATLAS_URI");
 const dbURI = process.env.MONGO_ATLAS_URI;
 
 const connectOptions = {
