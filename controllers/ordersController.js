@@ -58,7 +58,7 @@ module.exports.fetchOrders = async (req, res) => {
         username: userName,
         days: numberOfDays
       })
-      const updatedBookDetails = await bookModel.findOneAndUpdate(
+      await bookModel.findOneAndUpdate(
         { title: bookName },
         { quantity: quantity - 1 },
         { new: true }
@@ -107,7 +107,7 @@ module.exports.fetchOrders = async (req, res) => {
         { new: true }
       );
       const book = orderDetails.bookName;
-      const bookDetails = await bookModel.findOneAndUpdate(
+      await bookModel.findOneAndUpdate(
         { title: book },
         { quantity: 1 },
         { new: true }
@@ -117,7 +117,7 @@ module.exports.fetchOrders = async (req, res) => {
         success: true
       })
     } catch (error) {
-      const orderDetails = await orders.findOneAndUpdate(
+      await orders.findOneAndUpdate(
         { _id: orderId },
         { status: "ordered" }
       );

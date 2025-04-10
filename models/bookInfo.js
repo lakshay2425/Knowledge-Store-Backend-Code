@@ -9,10 +9,14 @@ const BookSchema = new mongoose.Schema({
     quantity: { type: Number, required: true },
     imageLink: { type: String },
     reviews: [{
+        id: { type: Number },
+        date : {type: String},
         rating: { type: Number, min: 1, max: 5 },
         comment: { type: String },
-        reviewer: { type: String }
+        name: { type: String }
     }],
+    description : { type: String },
+    rating: { type: Number, min: 1, max: 5 },   
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
     type : { type : String, required: true}

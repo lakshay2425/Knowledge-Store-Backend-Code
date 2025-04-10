@@ -1,7 +1,9 @@
 const bookModel = require("../models/bookInfo");
-const wishlistModel = require("../models/wishlist");
 const itemSchema = require("../utilis/joiValidator");
-const {deleteAllProducts} = require("../utilis/deleteAll"); 
+const {deleteAllProducts, deleteBook} = require("../utilis/deleteAll"); 
+const wishlistModel = require("../models/wishlist");
+const cartModel = require("../models/cart");
+//const {moveBook} = require("../utilis/moveBook");
 
 const validateInput = (bookName, email) => {
   const { error, value } = itemSchema.validate({ bookName, email });
@@ -14,8 +16,25 @@ const validateInput = (bookName, email) => {
 async function addBookToWishlist(bookName, email) {
   try {
     const value = validateInput(bookName, email);
-    const wishlist = await wishlistModel.create({ bookName, email });
-    return true;
+    if(value){
+      const existingBook = await wishlistModel.findOne({ bookName, email });
+      if (existingBook) {
+        //console.log("Already exist");
+        return {
+          message: "Book already exists in the wishlist",
+          success: false,
+          exist: true
+        }; // Book already exists in the cart
+      }else{
+        await wishlistModel.create({ bookName, email });
+       // console.log("Added to wishlist");
+        return {
+          message: "Book added to wishlist",
+          success: true,
+          exist: false
+        }; 
+      }
+    }
   } catch (error) {
     return false;
   }
@@ -23,23 +42,34 @@ async function addBookToWishlist(bookName, email) {
 //Function to add a book to wishlist
 module.exports.addToWishlist = async (req, res) => {
   try {
-    const { bookName } = req.params;
-    const email = req.body.email; // assuming you have user data available in req.user
-
+    const {email, bookName} = req.body; 
+    // console.log(email, bookName);
     if (!bookName || !email) {
       return res.status(400).json({ error: "Book name and email is required" });
     }
-    const result = addBookToWishlist(bookName, email);
-    if (result) {
+
+    const result = await addBookToWishlist(bookName, email);
+    //console.log(result);
+    if (result.success) {
       return res.status(201).json({
-        message: "Book added to the Wishlist",
-        success: true
+        message: "Book added to cart successfully",
+        success: true,
+        exist: false
       })
     } else {
-      return res.status(404).json({
-        message: "Failed to place the order Try again later",
-        success: false
-      })
+      if(result.exist){
+        return res.status(409).json({ 
+        message: "Book already exist in wishlist",
+        success: false,
+        exist: true
+        })
+      }else{
+        return res.status(404).json({
+          success: false,
+          message: "Falied to add book to wishlist",
+          exist: false
+        })
+      } 
     }
   } catch (error) {
     console.error(error.message);
@@ -51,11 +81,10 @@ module.exports.addToWishlist = async (req, res) => {
   }
 };
 
-
 //Function to fetch wishlist books of a user
 module.exports.fetchWishlistData = async (req, res) => {
   try {
-    const email = req.body.email;
+    const email = req.query.email;
     const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
     const data = await wishlistModel.find({ email: regex });
     if (data.length > 0) {
@@ -63,10 +92,15 @@ module.exports.fetchWishlistData = async (req, res) => {
       const bookDetails = await bookModel.find({
         $or: booksName.map(name => ({ title: { $regex: new RegExp(name, 'i') } }))
       });
-      res.status(200).json(bookDetails);
+      res.status(200).json({
+        message: "User Wishlist data fetch successfully",
+        bookDetails,
+        numberOfBooks: bookDetails.length 
+      });
     } else {
       res.status(200).json({
-        message: "No books found in wishlist", success: false
+        message: "No books found in wishlist", 
+        numberOfBooks: 0
       });
     }
   } catch (error) {
@@ -75,54 +109,66 @@ module.exports.fetchWishlistData = async (req, res) => {
   }
 };
 
-
 //Function to delete a book from user wishlist section
 module.exports.deleteWishlistProduct = async (req, res) => {
   try {
-    const { email } = req.body;
-    const { bookName } = req.params;
+    const { bookName, email } = req.query;
 
     if (!email || !bookName) {
       return res.status(404).json({
         message: "Email and bookName is required",
-        success: fasle
+        success: false
       })
     }
-
-    const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
-    const regexBook = new RegExp(bookName, 'i'); // Case-insensitive regular expression
-    const data = await wishlistModel.findOneAndDelete({ $and: [{ bookName: regexBook }, { email: regex }] });
-    res.status(200).json({ message: "Book Deleted Successfully", bookName });
+    await deleteBook(bookName, email, "Wishlist", res);
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ error: `Server error ${error.message}` });
+    res.status(500).json({ error: `Server error ${error.message}` , succes: false});
   }
 }
 
 module.exports.moveBookFromCartToWishlist = async (req, res) => {
   try {
-    const { bookName, email } = req.body.data;
-    const bookDetailsFromCart = await cartModel.findOneAndDelete({
+    const { bookName, email } = req.body;
+    if(!bookName || !email){
+      return res.status(400).json({
+        message : 'Fields are required',
+        success: false
+    })
+  }
+  console.log("Params are there bookName, and email");
+    //await moveBook(bookName, email, res, "cart", "wishlist");
+    await cartModel.findOneAndDelete({
       $and: [
         { bookName },
         { email }
       ]
     });
     const result = await addBookToWishlist(bookName, email);
-    if (result) {
+    if (result.success){
       return res.status(201).json({
         message: "Moved book from  cart to wishlist successfully",
-        success: true
+        success: true,
+        exist: false,
       })
     } else {
-      const book = await cartModel.create({
-        bookName,
-        email
-      })
-      return res.status(404).json({
-        message: "Failed to move the book from cart to wishlist Try again later",
-        success: false
-      })
+      if(result.exist){
+        return res.status(409).json({
+          message: "Book already exist in wishlist",
+          success: false,
+          exist: true,
+        })  
+      }else{
+        await cartModel.create({
+          bookName,
+          email
+        })
+        return res.status(404).json({
+          message: "Failed to move the book from cart to wishlist Try again later",
+          success: false,
+          exist: false,
+        }) 
+      }
     }
   } catch (error) {
     return res.status(500).json({

@@ -4,14 +4,14 @@ const orders = require("../models/order");
  // Function to insert book details in the database
 module.exports.bookDetails = async (req,res) => {
     try{
-    const {price, quantity ,genre, book_name, author, img_link} = req.body;
+    const {price, quantity ,genre, book_name, author, img_link, description, reviews, rating, type} = req.body;
     if(!price || !quantity || !genre || !book_name || !author || !img_link || !type){
       return res.status(400).json({
         message : "All Fields are necessary",
         success : false
       })
     }
-    const response = await bookModel.create({price, quantity ,genre, title : book_name, author, type, imageLink : img_link});
+    const response = await bookModel.create({price, quantity ,genre, title : book_name, author, type, imageLink : img_link, type, description, rating, reviews});
     res.json(response);
     } catch (err){
       res.status(500).json({

@@ -13,11 +13,20 @@ module.exports.feedbackDetails = async (req, res) => {
       });
     }
     const userDetail = await userDetails(gmail);
+    if(!userDetail){
+      return res.status(404).json({
+        message: "User account doesn't exist",
+        success: false,
+      })
+    }
     const userId = userDetail._id.toString();
     const response = await feedbackModel.create({ userId, feedback });
     res.json(response);
   } catch (err) {
-    res.status(500).send(`Server Error ${err.message}`);
+    return res.status(500).json({
+      message: `Server Error ${err.message}`,
+      success: false,
+    });
   }
 };
 
@@ -31,6 +40,12 @@ module.exports.suggestionDetails = async (req, res) => {
       });
     }
     const userDetail = await userDetails(gmail);
+    if(!userDetail){
+      return res.status(404).json({
+        message: "User account doesn't exist",
+        success: false,
+      })
+    }
     const userId = userDetail._id.toString();
     const response = await suggestionModel.create({
       userId,
@@ -55,6 +70,12 @@ module.exports.contactDetails = async (req, res) => {
       });
     }
     const userDetail = await userDetails(gmail);
+    if(!userDetail){
+      return res.status(404).json({
+        message: "User account doesn't exist",
+        success: false,
+      })
+    }
     const userId = userDetail._id.toString();
     const response = await contactModel.create({ concern, userId });
     res.json(response);

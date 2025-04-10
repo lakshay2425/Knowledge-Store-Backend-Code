@@ -11,6 +11,7 @@ module.exports.fetchBooks = async function (req, res) {
       message : " Book details fetched successfully"
     });
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({
       message :  "Error fetching books",
       success : false
@@ -30,7 +31,7 @@ module.exports.fetchBook = async function (req, res) {
       })
     }
     const regex = new RegExp(bookName, 'i'); // Case-insensitive regular expression
-    const book = await bookModel.findOne({
+    const book = await bookModel.find({
       $text: {
         $search: `${regex}`
       }
@@ -45,6 +46,7 @@ module.exports.fetchBook = async function (req, res) {
     res.status(200).json({
       message: "Book details fetched",
       data: book,
+      numberOfResult : book.length,
       success: true,
       found: true
     });

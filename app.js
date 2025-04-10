@@ -20,31 +20,23 @@ const MongoDB = require("./config/mongoose");
 
 MongoDB();
 
-const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minutes
-  max: 30, // limit each IP to 30 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the RateLimit-* headers
-  legacyHeaders: false, // Disable the X-RateLimit-* headers
-  handler: (res) => {
-    res.status(429).json({
-      error: "Too Many Requests",
-      message: "You have exceeded the rate limit. Please wait 15 minutes before making another request."
-    });
-  }
-});
+const createRateLimiter = (maxRequests, timeInMinutes) => {
+  return rateLimit({
+    windowMs: timeInMinutes * 60 * 1000, // time in minutes
+    max: maxRequests, // limit each IP to maxRequests per windowMs
+    standardHeaders: true, // Return rate limit info in the RateLimit-* headers
+    legacyHeaders: false, // Disable the X-RateLimit-* headers
+    handler: (req, res) => {
+      res.status(429).json({
+        error: "Too Many Requests",
+        message: `You have exceeded the rate limit. Please wait ${timeInMinutes} minutes before making another request.`
+      });
+    }
+  });
+};
 
-const authLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000, // 5 minutes
-  max: 20, // limit each IP to 20 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the RateLimit-* headers
-  legacyHeaders: false, // Disable the X-RateLimit-* headers
-  handler: (res) => {
-    res.status(429).json({
-      error: "Too Many Requests",
-      message: "You have exceeded the rate limit. Please wait 15 minutes before making another request."
-    });
-  }
-});
+const limiter = createRateLimiter(30, 1); // 30 requests per 1 minute
+const authLimiter = createRateLimiter(20, 5); // 20 requests per 5 minutes
 
 
 const frontendURL = process.env.FRONTEND_URL;
@@ -82,7 +74,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use("/auth", authLimiter, authRoutes);
 app.use("/forms",limiter, formRoutes)
-app.use('/', limiter,indexRouter);
+app.use('/', limiter, indexRouter);
 app.use("/admin", adminRoutes);
 app.use("/user",limiter, userRoutes);
 app.use("/wishlist", limiter, wishlistRoutes);
@@ -105,7 +97,9 @@ app.use(function(err, req, res, next) {
 });
 
 
-app.listen(3000);
+app.listen(3000, ()=>{
+  console.log("Server is listening");
+});
 
 
 module.exports = app;

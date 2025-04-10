@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 
 const dbURI = process.env.MONGO_ATLAS_URI;
 
+if (!dbURI) {
+  console.error('MongoDB URI is not defined in environment variables');
+  process.exit(1);
+}
+
 const connectOptions = {
   maxIdleTimeMS: 10000, // Close connections after 10 seconds of inactivity
 };
