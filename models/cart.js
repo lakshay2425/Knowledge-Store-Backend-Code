@@ -12,6 +12,9 @@ const cartSchema = new mongoose.Schema({
     required: true,
     match: [/^\S+@\S+\.\S+$/, 'Invalid email address'], // Validates email format
     trim: true // Removes whitespace from both ends of the string
+  },
+  days: {
+    type: Number
   }
 }, {
   timestamps: true // Automatically adds createdAt and updatedAt fields

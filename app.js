@@ -16,7 +16,8 @@ const userRoutes = require("./routes/users");
 const rateLimit = require('express-rate-limit');
 const app = express();
 const MongoDB = require("./config/mongoose");
-
+const helmet = require('helmet');
+const {authenticate} = require("./middleware");
 
 MongoDB();
 
@@ -39,8 +40,8 @@ const limiter = createRateLimiter(30, 1); // 30 requests per 1 minute
 const authLimiter = createRateLimiter(20, 5); // 20 requests per 5 minutes
 
 
-const frontendURL = process.env.FRONTEND_URL;
-const allowedOrigins = [frontendURL];
+const frontendURLs = [process.env.LOCALHOST_FRONTEND_URL, process.env.PRODUCTION_FRONTEND_URL];
+const allowedOrigins = [frontendURLs];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -51,15 +52,18 @@ app.use(cors({
     }
     return callback(null, true);
   },
-  credentials: true // Allow cookies to be sent and received
+  credentials: true, // Allow cookies to be sent and received,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 }));
 
-app.use((req, res, next) => {
-  res.setHeader('Cache-Control', 'no-store');
-  next();
-});
+// Use Helmet for security headers
+app.use(helmet());
 
+// Additional headers for extra security
 app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Cache-Control', 'no-store');
   res.setHeader("Content-Security-Policy", "default-src 'self'");
   next();
 });
@@ -73,13 +77,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.use("/auth", authLimiter, authRoutes);
-app.use("/forms",limiter, formRoutes)
+app.use("/forms",authenticate, limiter, formRoutes)
 app.use('/', limiter, indexRouter);
-app.use("/admin", adminRoutes);
-app.use("/user",limiter, userRoutes);
-app.use("/wishlist", limiter, wishlistRoutes);
-app.use("/cart", limiter, cartRoutes);
-app.use("/orders", limiter,orderRoutes)
+app.use("/admin", authenticate, adminRoutes);
+app.use("/user",authenticate,limiter, userRoutes);
+app.use("/wishlist", authenticate, limiter, wishlistRoutes);
+app.use("/cart", authenticate, limiter, cartRoutes);
+app.use("/orders", authenticate, limiter,orderRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

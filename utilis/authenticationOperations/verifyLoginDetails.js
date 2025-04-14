@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const generateToken = require('../generateToken');
 const Admin = require("../../models/admin")
 const User = require("../../models/user");
+const { sendEmail } = require('../mailFunction');
 
 
 // Function to verify login details
@@ -16,13 +17,22 @@ module.exports.verifyLoginDetails = async (username, password, req, res) => {
       const hash = results.passwordHash;
       const result = await bcrypt.compare(password, hash);
       if (result) {
-        const token = generateToken(role);
+        const token = generateToken(username);
         res.cookie('token', token, {
-          httpOnly: false,
-          secure: true,
-          maxAge: 5 * 60 * 60 * 1000,
+          httpOnly: true,
+          secure: false,
+          sameSite : true,
+          maxAge: 2 * 60 * 60 * 1000,
         });
-        return res.status(200).json({ success: true, message: "Login successful", role , userData : results});
+        const response = await sendEmail(results.emailId, {ipAddress : req.ip, timestamp: new Date().toLocaleString()}, 2, "There is a new login with your credentials")
+        return res.status(200).json(
+          { 
+            success: true,
+             message: "Login successful",
+              role , 
+              userData : results,
+              mailStatus: response
+            });
       } else {
         return res.status(401).json({ success: false, message: "Invalid Credentials" });
       }

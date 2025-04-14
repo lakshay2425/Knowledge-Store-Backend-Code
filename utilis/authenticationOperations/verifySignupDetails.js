@@ -2,6 +2,7 @@ const { encryptPass } = require("../encryptPassword");
 const generateToken = require('../generateToken');
 const userModel = require("../../models/user");
 const Admin = require("../../models/admin");
+const {sendEmail}  = require("../mailFunction")
 
 // Function to check whether the user already exists or not
 const isUserAlreadyExist = async (gmail, res) => {
@@ -35,13 +36,15 @@ module.exports.insertSignupDetails = async (req, res) => {
     if (!userExists) {
       const passwordHash = await encryptPass(password);
       const user = await userModel.create({ fullName, emailId: gmail, contactNumber: number, passwordHash, gender, username , address, city})
-      const token = generateToken("user");
+      const token = generateToken(username);
       res.cookie('token', token, {
-        httpOnly: false,
-        secure: true,
-        maxAge: 5 * 60 * 60 * 1000,
+        httpOnly: true,
+        secure: false,
+        sameSite : true,
+        maxAge: 2 * 60 * 60 * 1000,
       });
-      return res.status(201).json({ success: true, message: "User Signup successful", data: user, role: "user" });
+      const response = await sendEmail(gmail, {username}, 1, "Welcome to Knowledge Store");
+      return res.status(201).json({ success: true, message: `User Signup successful`, data: user, role: "user" , mailStatus: response});
     } else {
       return res.status(409).json({ exists: true, message: "User  Account Already exists" });
     }

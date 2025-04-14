@@ -1,5 +1,4 @@
 const { verifyLoginDetails } = require('../utilis/authenticationOperations/verifyLoginDetails');
-const { insertSignupDetails } = require("../utilis/authenticationOperations/verifySignupDetails");
 
 
 module.exports.loginDetails = async (req, res) => {
@@ -25,10 +24,11 @@ module.exports.loginDetails = async (req, res) => {
 module.exports.logoutUser = async (req, res) => {
   try {
     // Set the 'token' cookie to expire immediately
-    res.cookie('token', "", {
-      httpOnly: false, // Set according to your needs
+    res.clearCookie('token', {
+      httpOnly: true, // Set according to your needs
       secure: false,  // Set to true if using HTTPS in production
       expires: new Date(0), // Expire the cookie immediately
+      sameSite: true
     });
 
     // Send a single response with a success message

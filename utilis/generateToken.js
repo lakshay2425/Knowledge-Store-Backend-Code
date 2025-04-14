@@ -1,9 +1,15 @@
 const jwt = require('jsonwebtoken');
 
 try {
-    const secret = process.env.SECRET;
-    function generateToken(data){
-        return jwt.sign({data}, (secret), { expiresIn: '1h' });
+    const secret = process.env.JWT_SECRET;
+    function generateToken(subject){
+        const payload = {
+            sub: subject,
+            role: 'user',
+            iss : process.env.ISSUER,
+            aud: process.env.AUDIENCE,
+        };
+        return jwt.sign(payload, (secret), { expiresIn: '2h' });
     }
     
     module.exports = generateToken;

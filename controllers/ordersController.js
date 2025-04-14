@@ -1,6 +1,7 @@
 const orders = require("../models/order");
 const userModel = require("../models/user");
 const bookModel = require("../models/bookInfo");
+const { sendEmail } = require("../utilis/mailFunction");
 
 module.exports.fetchOrders = async (req, res) => {
     const { email } = req.body;
@@ -33,13 +34,13 @@ module.exports.fetchOrders = async (req, res) => {
     const userContactNumber = user.contactNumber;
     const userName = user.username;
     const bookDetails = await bookModel.findOne({ title: bookName });
-    if (!bookDetails) {
+    if (!bookDetails){
       return res.status(404).json({
         message: "Book doesn't exist in the database"
       })
     }
     const quantity = bookDetails.quantity;
-    if (quantity == 0) {
+    if (quantity == 0){
       return res.status(300).json({
         message: "Book isn't available"
       })
@@ -63,10 +64,22 @@ module.exports.fetchOrders = async (req, res) => {
         { quantity: quantity - 1 },
         { new: true }
       )
-      return true;
+      return {
+        success: true,
+        total : rentCharges + securityDeposit,
+        price: securityDeposit,
+        quantity,
+        id: order._id,
+        rentCharges,
+      };
     }
     } catch (error) {
-     return false; 
+      await bookModel.findOneAndUpdate(
+        { title: bookName },
+        { quantity: 1 },
+        { new: true }
+      )
+     return {success: false, error: error.message};  
     }
   }
   
@@ -78,19 +91,35 @@ module.exports.fetchOrders = async (req, res) => {
           message: "All field are necessary"
         })
       }
-      const result = placeBookOrder(email, bookName, numberOfDays);
-      if(result){
+      const result = await placeBookOrder(email, bookName, numberOfDays);
+      if(result.success){
+        const response = await sendEmail(email, 
+          {bookInfo : {
+            title : bookName,
+             quantity: result.quantity,
+              price: result.price,
+              id: result.id,
+              rentalCharges : result.rentCharges 
+            }, total : result.total}, 3 ,"Thank you for ordering and choosing us");
         return res.status(201).json({
-          message: "Orders place successfully",
-          success : true
+          message: `Orders place successfully, and ${response ? "Mail sent" :" Failed to sent the mail"}`,
+          success : true,
+          mailStatus: response,
         })
       }else{
+        console.log(result.error)
+        await bookModel.findOneAndUpdate(
+          { title: bookName },
+          { quantity: 1 },
+          { new: true }
+        )
         return res.status(404).json({
           message : "Failed to place the order Try again later",
           success : false
         })
       }
     } catch (error) {
+      console.log(error.message);
       res.status(500).json({
         message: "Failed to place the order",
         error: error.message

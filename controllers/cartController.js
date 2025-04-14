@@ -45,6 +45,33 @@ async function addBookToCart(bookName, email) {
 }
 
 
+module.exports.updateCart = async (req,res)=>{
+  const {days, bookName} = req.body;
+  
+  if(!days || !bookName){
+    return res.status(400).json({
+      message : "Days and bookName is required",
+      success : false,
+      updated: false,
+    })
+  }
+
+  const bookDetails = await cartModel.findOneAndUpdate({title : bookName}, {days}, {new : true});
+  if(bookDetails){
+    return res.status(200).json({
+      message : "Number of days updated in Book information successfully",
+      success : true,
+      updated: true,
+    })
+  }else{
+    return res.status(500).json({
+      message : "Failed to update Number of days in Book information",
+      success : false,
+      updated: false,
+    })
+  }
+}
+
 //Function to add a book to user cart section
 module.exports.addToCart = async (req, res) => {
   try {
