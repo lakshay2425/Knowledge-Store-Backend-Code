@@ -41,7 +41,7 @@ const authLimiter = createRateLimiter(20, 5); // 20 requests per 5 minutes
 
 
 const frontendURLs = [process.env.LOCALHOST_FRONTEND_URL, process.env.PRODUCTION_FRONTEND_URL];
-const allowedOrigins = [frontendURLs];
+const allowedOrigins = frontendURLs;
 
 app.use(cors({
   origin: function (origin, callback) {
