@@ -14,7 +14,7 @@ const validateInput = (bookName, email) => {
 };
 
 
-async function addBookToCart(bookName, email) {
+async function addBookToCart(bookName, email, rentalPeriod) {
   try {
     //Use Joi.attempt() to validate the data against your schema
     const value = validateInput(bookName, email);
@@ -27,7 +27,7 @@ async function addBookToCart(bookName, email) {
           exist: true
         }; // Book already exists in the cart
       }else{
-        const cart = await cartModel.create({ bookName, email });
+        const cart = await cartModel.create({ bookName, email, days: rentalPeriod });
         return {
           message: "Book added to cart",
           success: true,
@@ -75,11 +75,11 @@ module.exports.updateCart = async (req,res)=>{
 //Function to add a book to user cart section
 module.exports.addToCart = async (req, res) => {
   try {
-    const { bookName, email } = req.body; // assuming you have user data available in req.user
-    if (!bookName || !email) {
-      return res.status(400).json({ error: "Book name and email is required" });
+    const { bookName, email , rentalPeriod} = req.body; // assuming you have user data available in req.user
+    if (!bookName || !email ||!rentalPeriod){
+      return res.status(400).json({ error: "Book name, rentalPeriod and email is required" });
     };
-    const result = await addBookToCart(bookName, email);
+    const result = await addBookToCart(bookName, email, rentalPeriod);
     if (result.success) {
       return res.status(201).json({
         message: "Book added to cart successfully",
@@ -122,7 +122,9 @@ module.exports.fetchCartData = async (req, res) => {
         $or: booksName.map(name => ({ title: { $regex: new RegExp(name, 'i') } }))
       });
       return res.status(200).json({
-        message: "User Cart data fetch successfully", bookDetails,
+        message: "User Cart data fetch successfully",
+        data,
+        bookDetails,
         numberOfBooks: bookDetails.length
       });
     } else {
