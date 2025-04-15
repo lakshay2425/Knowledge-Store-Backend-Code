@@ -22,7 +22,7 @@ const {authenticate} = require("./middleware");
 MongoDB();
 
 // Set trust proxy (modify as needed for your environment)
-app.set('trust proxy', true); // or 1, or 'multiple'
+app.set('trust proxy', 1); // or 1, or 'multiple'
 
 const createRateLimiter = (maxRequests, timeInMinutes) => {
   return rateLimit({

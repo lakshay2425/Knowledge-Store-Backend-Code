@@ -44,7 +44,7 @@ async function addBookToCart(bookName, email) {
   }
 }
 
-
+//Function to update number of days in cart
 module.exports.updateCart = async (req,res)=>{
   const {days, bookName} = req.body;
   
