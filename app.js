@@ -18,6 +18,7 @@ const app = express();
 const MongoDB = require("./config/mongoose");
 const helmet = require('helmet');
 const {authenticate} = require("./middleware");
+const {connectRedis} = require("./config/redis")
 
 MongoDB();
 
@@ -104,9 +105,18 @@ app.use(function(err, req, res, next) {
 });
 
 
-app.listen(3000, ()=>{
-  console.log("Server is listening");
-});
+(async () => {
+  try {
+    await connectRedis(); // ensure connection first
+    app.listen(3000, () => {
+      console.log("🚀 Server running on port 3000");
+    });
+  } catch (err) {
+    console.error("❌ Could not connect to Redis", err);
+    process.exit(1); // Exit if Redis fails to connect
+  }
+})();
+
 
 
 module.exports = app;
