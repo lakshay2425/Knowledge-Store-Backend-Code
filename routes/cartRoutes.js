@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {addToCart, fetchCartData, deleteCartProduct, updateCart, moveBookFromWishlisttoCart, deleteAllCartProduct} = require("../controllers/cartController");
 
-router.get("/fetch", fetchCartData);
+router.post("/fetch", fetchCartData);
 router.delete("/delete", deleteCartProduct);
 router.delete("/deleteAll", deleteAllCartProduct);
 router.post("/moveTocart", moveBookFromWishlisttoCart);

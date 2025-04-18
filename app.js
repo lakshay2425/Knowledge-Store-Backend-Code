@@ -86,7 +86,7 @@ app.use('/', limiter, indexRouter);
 app.use("/admin", authenticate, adminRoutes);
 app.use("/user",authenticate,limiter, userRoutes);
 app.use("/wishlist", authenticate, limiter, wishlistRoutes);
-app.use("/cart", authenticate, limiter, cartRoutes);
+app.use("/cart",  limiter, cartRoutes);
 app.use("/orders", authenticate, limiter,orderRoutes);
 
 // catch 404 and forward to error handler

@@ -109,33 +109,46 @@ module.exports.addToCart = async (req, res) => {
 //Function to fetch  book details from user cart section
 module.exports.fetchCartData = async (req, res) => {
   try {
-    const email = req.query.email;
+    const email = req.body.email;
     if (!email) {
       return res.status(400).json({ error: "Email is required" });
-    };
-
-    const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
-    const data = await cartModel.find({ email: regex });
-    if (data.length > 0) {
-      const booksName = data.map(book => book.bookName);
-      const bookDetails = await bookModel.find({
-        $or: booksName.map(name => ({ title: { $regex: new RegExp(name, 'i') } }))
+    }; 
+    const userCartWithBookInfo = await cartModel.aggregate([
+        { $match: { email: email } },
+        {
+          $lookup: {
+            from: "books",
+            localField: "bookName",
+            foreignField: "title",
+            as: "bookInfo"
+          }
+        },
+        { $unwind: "$bookInfo" },
+        {
+          $project: {
+            _id: 0,
+            bookName: 1,
+            days: 1,
+            author : "$bookInfo.author", 
+            description:"$bookInfo.description",
+            genre: "$bookInfo.genre",
+            price: "$bookInfo.price",
+            imageLink : "$bookInfo.imageLink",
+            reviews: "$bookInfo.reviews",
+            rating : "$bookInfo.rating",
+            type: "$bookInfo.type",
+          }
+        }
+    ]);
+    return res.status(200).json({
+        message:  `${userCartWithBookInfo.length > 0 ? "User Cart data fetch successfully" : "No Data in the cart"}`,
+        bookDetails : userCartWithBookInfo,
+        numberOfBooks: userCartWithBookInfo.length
       });
-      return res.status(200).json({
-        message: "User Cart data fetch successfully",
-        data,
-        bookDetails,
-        numberOfBooks: bookDetails.length
-      });
-    } else {
-      return res.status(200).json({
-        message: "No books added to cart",
-        numberOfBooks: 0
-      })
-    }
-
   } catch (error) {
-    res.status(500).json({ error: `Server error ${error.message}` });
+    res.status(500).json({
+      success: false,
+      error: `Server error ${error.message}` });
   }
 };
 
