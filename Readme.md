@@ -10,50 +10,7 @@ Here are the list of the genres of which we would be offering books on our platf
 3. Skill Based
 4. Self-Help
 5. Ficitional
-
-Note: Platform would be live by the end of 2024.
-
-#ProjectStructure
-
-Knowledge Store/
-├── app.js
-├── .gitignore
-├── package.json
-├── package-lock.json
-├── config
-│   └── mongoose.js
-├── controllers
-│   ├── adminController.js
-│   ├── authController.js
-│   ├── formController.js
-│   ├── userController.js
-│   └── indexController.js
-├── models
-│   ├── cart.js
-│   ├── user.js
-│   ├── admin.js
-│   ├── wishlist.js
-│   ├── order.js
-│   ├── bookInfo.js
-│   ├── contact.js
-│   ├── feedback.js
-│   ├── suggestion.js
-│   └── review.js
-├── routes
-│   ├── adminRoute.js
-│   ├── user.js
-│   ├── index.js
-│   ├── formRoutes.js
-│   └── authRoutes.js
-├── utils
-│   ├── encryptPassword.js
-│   ├── fetchUserId.js
-│   ├── generateToken.js
-│   ├── joiValidator.js
-│   └── databaseOperation
-│       └── verifyLoginDetails.js
-│       └── verifySignupDetails.js
-
+6. Santana Dharma
 
 Here are the problems which our platform would be solving for the readers along with their solutions:
 1. They don't need to buy every book they want to read. Instead they can rent out books from our platform for numbers of days they want at affordable prices.
@@ -66,7 +23,7 @@ Technologies used are as follows:
 3. jsonwebtoken (For User Authentication)
 4. bcrypt (For Encryption of the password)
 5. Cloudinary (For Storing Books Images)
-6. Resend (For Mail Service) (It would be integrated once MVP is completed)
+6. Nodemailer (For Mail Service) (It would be integrated once MVP is completed)
 
 The codebase has been written while using the industry standards for writing the server code which includes creating controllers, config, models, routes, utilis folder to make code more clean and readable.
 
