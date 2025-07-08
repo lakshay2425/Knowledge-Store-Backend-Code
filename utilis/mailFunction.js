@@ -2,13 +2,15 @@ const {getTransporter} = require("../config/nodeMailer");
 const { createAccount } = require("../mailTemplates/createAccount");
 const { loginAccount } = require("../mailTemplates/loginAccount");
 const { orderConfirmation } = require("../mailTemplates/placeOrder");
+const {config} = require("../config/config.js");
+
 
 const sendEmail = async ( email,options= {}, mailFunctionId, subject) => {
   const transporter = await getTransporter()
   const getHtmlMailGenrator = await sendCreateAccountMail(options, mailFunctionId);
     try {
       await transporter.sendMail({
-        from: process.env.EMAIL || "knowledgestore25@gmail.com",
+        from: config.get("EMAIL"),
         to: email,
         subject,
         html: getHtmlMailGenrator,
@@ -22,13 +24,13 @@ const sendEmail = async ( email,options= {}, mailFunctionId, subject) => {
 
 const sendCreateAccountMail = async (options, id)=>{
   if(id == 1){
-    const template = await createAccount(options);
+    const template =  createAccount(options);
     return template
   }else if(id == 2){
-    const template =  await loginAccount(options);
+    const template =  loginAccount(options);
     return template
   }else if(id == 3){
-    const template =  await orderConfirmation(options);
+    const template =  orderConfirmation(options);
     return template
   }
 }  

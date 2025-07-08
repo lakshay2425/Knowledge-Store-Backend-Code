@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const {config} = require("./config/config.js")
+
 const authenticate = (req, res, next) => {
     try {
       // Extract token from cookies
@@ -10,13 +12,13 @@ const authenticate = (req, res, next) => {
       
       // JWT verification options
       const verifyOptions = {
-        issuer: process.env.ISSUER, // 'your-app-name'
-        audience: process.env.AUDIENCE, // 'your-app-frontend'
-        maxAge: process.env.maxAge || '2h', // Token expiration check
+        issuer: config.get("ISSUER"),
+        audience: config.get("AUDIENCE"), 
+        maxAge: config.get("maxAge"), 
       };
       
       // Verify the token with options
-      const decoded = jwt.verify(token, process.env.JWT_SECRET, verifyOptions);
+      const decoded = jwt.verify(token, config.get("JWT_SECRET"), verifyOptions);
       // Attach user info to the request object
       req.user = decoded;
       

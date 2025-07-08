@@ -1,9 +1,9 @@
 // redisClient.js
 const { createClient } = require("redis");
-require("dotenv").config();
+const {config} = require("./config.js")
 
 const redisClient = createClient({
-  url: process.env.REDIS_URL,
+  url: config.get("REDIS_URL"),
   //legacyMode: true, // Needed for Upstash compatibility
   socket: {
     reconnectStrategy: (retries) => {

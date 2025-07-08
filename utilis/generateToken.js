@@ -1,13 +1,13 @@
 const jwt = require('jsonwebtoken');
-
+const {config} = require("../config/config.js")
 try {
-    const secret = process.env.JWT_SECRET;
+    const secret = config.get("JWT_SECRET");
     function generateToken(subject){
         const payload = {
             sub: subject,
             role: 'user',
-            iss : process.env.ISSUER,
-            aud: process.env.AUDIENCE,
+            iss : config.get("ISSUER"),
+            aud: config.get("AUDIENCE"),
         };
         return jwt.sign(payload, (secret), { expiresIn: '2h' });
     }
