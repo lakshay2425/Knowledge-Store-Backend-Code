@@ -1,48 +1,40 @@
 const bookModel = require("../models/bookInfo");
-const {getCachedData, setCacheData} = require("../utilis/fetchDataFromRedis")
-// const {redisClient} = require("../config/redis");
+const {getCachedData, setCacheData} = require("../utilis/fetchDataFromRedis");
+const createHttpError = require("http-errors");
 
 //Function to fetch book details from database
-module.exports.fetchBooks = async function (req, res) {
+module.exports.fetchBooks = async function (req, res,next) {
   try {
     const key = "allBooks";
     const cachedData = await getCachedData(key);
     if(cachedData){
-      // console.log("Data from redis");
       return res.status(200).json({
         data: cachedData,
         success: true,
         message : "Book details fetched successfully",
       })
     }
-      const books = await bookModel.find(); // Function to fetch data from the database
+      const books = await bookModel.find(); 
       await setCacheData(key, books);
       await getCachedData(key);
-      // console.log("Data stored in redis in index controller");
       res.status(200).json({
         data : books,
         success : true,
-        message : " Book details fetched successfully"
+        message : "Book details fetched successfully"
       });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({
-      message :  "Error fetching books",
-      success : false
-    });
+    console.log("Failed to fetch books data",error.message);
+    next(createHttpError(500, "Failed to fetch books data"))
   }
 };
 
 
 //Function to fetch specific book details 
-module.exports.fetchBook = async function (req, res) {
+module.exports.fetchBook = async function (req, res, next) {
   try {
     const { bookName } = req.params;
     if (!bookName) {
-      return res.status(404).json({
-        status: "Book Name is missing",
-        success: false
-      })
+      return next(createHttpError(400, "Book Name is missing"))
     }
     const key = bookName;
     const cachedData = await getCachedData(key);
@@ -62,11 +54,13 @@ module.exports.fetchBook = async function (req, res) {
         }
       });
       if (!book) {
-        return res.status(200).json({
-          message: "Book you're trying to search isn't  available",
+        const err = new Error("Book you're trying to search isn't available");
+        err.statusCode = 200;
+        err.additonalFields = {
           success : false,
           found: false
-        })
+        }
+        return next(err);
       }
       await setCacheData(key, book);
       res.status(200).json({
@@ -78,12 +72,13 @@ module.exports.fetchBook = async function (req, res) {
       });
     }
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    console.log(`Error in fetching specific bookDetails`,error.message);
+    return next(createHttpError(500, "Internal Server Error"));
   }
 }
 
 
-module.exports.fetchRecommendedBooks = async (req, res) => {
+module.exports.fetchRecommendedBooks = async (req, res, next) => {
   try {
     const key = "recommendedBooks";
     const cachedData = await getCachedData(key);
@@ -104,9 +99,7 @@ module.exports.fetchRecommendedBooks = async (req, res) => {
       })
     }
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: 'Server Error'
-    })
+    console.error("Error in fetching recommended books details", error.message);
+    next(createHttpError(500, "Internal Server Error"));
   }
 }
