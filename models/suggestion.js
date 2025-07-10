@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-// Assuming you have a User model defined elsewhere
-const User = require('./user');
 
 // Define the SuggestedBookSchema
 const SuggestedBookSchema = new Schema({
