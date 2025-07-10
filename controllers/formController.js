@@ -2,92 +2,96 @@ const userDetails = require("../utilis/fetchUserId");
 const feedbackModel = require("../models/feedback");
 const suggestionModel = require("../models/suggestion");
 const contactModel = require("../models/contact");
+const createHttpError = require("http-errors");
+
+const doesUserExist = async (gmail, next)=>{
+  const userDetail = await userDetails(gmail);
+    if(!userDetail){
+      const err = createHttpError(404, "User doesn't exist");
+      err.additionalFields = {success: false} 
+      return next(err);
+    }
+    return userDetail;
+}
 
 //Function to insert feedback details in the database
-module.exports.feedbackDetails = async (req, res) => {
+module.exports.feedbackDetails = async (req, res,next) => {
   try {
     const { gmail, feedback } = req.body;
     if (!gmail || !feedback) {
-      return res.status(400).json({
-        message: "Gmail and feedback is required",
-      });
+      const err = createHttpError(400, "Missing required fields");
+      err.additionalFields = {success: false} 
+      return next(err);
     }
-    const userDetail = await userDetails(gmail);
-    if(!userDetail){
-      return res.status(404).json({
-        message: "User account doesn't exist",
-        success: false,
-      })
-    }
+    const userDetail = doesUserExist(gmail, next);
     const userId = userDetail._id.toString();
-    const response = await feedbackModel.create({ userId, feedback });
-    res.json(response);
-  } catch (err) {
-    return res.status(500).json({
-      message: `Server Error ${err.message}`,
-      success: false,
-    });
+    await feedbackModel.create({ userId, feedback });
+      res.status(201).json({
+      message: "Feedback Form submitted successfully",
+      success: true
+    })
+  } catch (error) {
+    console.error("Error in submitting feedback form", error.message);
+    const err = createHttpError(500, "Error in submitting feedback form");
+    err.additionalFields = {success: false} 
+    return next(err);
   }
 };
 
 // Function to insert contact details in the database
-module.exports.suggestionDetails = async (req, res) => {
+module.exports.suggestionDetails = async (req, res,next) => {
   try {
     const { gmail, genre, bookName, author } = req.body;
     if (!gmail || !genre || !bookName || !author) {
-      return res.status(400).json({
-        message: "Gmail, genre, bookName and author is required",
-      });
+      const err = createHttpError(400, "Missing required fields");
+      err.additionalFields = {success: false} 
+      return next(err);
     }
-    const userDetail = await userDetails(gmail);
-    if(!userDetail){
-      return res.status(404).json({
-        message: "User account doesn't exist",
-        success: false,
-      })
-    }
+    const userDetail = doesUserExist(gmail, next);
     const userId = userDetail._id.toString();
-    const response = await suggestionModel.create({
+    await suggestionModel.create({
       userId,
       genre,
       bookName,
       author,
     });
-    res.json(response);
-  } catch (err) {
-    return res.status(500).send(`Server Error ${err.message}`);
+    res.status(201).json({
+      message: "Suggestion Form submitted successfully",
+      success: true
+    })
+  } catch (error) {
+    console.error("Error in submitting suggestion form", error.message);
+    const err = createHttpError(500, "Error in submitting suggestion form");
+    err.additionalFields = {success: false} 
+    return next(err);
   }
 };
 
 // Function to insert contact details in the database
-module.exports.contactDetails = async (req, res) => {
+module.exports.contactDetails = async (req, res,next) => {
   try {
     const { gmail, concern } = req.body.details;
     if (!gmail || !concern) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
+          const err = createHttpError(400, "Missing required fields");
+          err.additionalFields = {success: false} 
+          return next(err);
     }
-    const userDetail = await userDetails(gmail);
-    if(!userDetail){
-      return res.status(404).json({
-        message: "User account doesn't exist",
-        success: false,
-      })
-    }
+    const userDetail = doesUserExist(gmail, next);
     const userId = userDetail._id.toString();
-    const response = await contactModel.create({ concern, userId });
-    res.json(response);
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: `Server Error ${err.message}`,
-    });
+    await contactModel.create({ concern, userId });
+    res.status(201).json({
+      message: "Contact Form submitted successfully",
+      success: true
+    })
+  } catch (error) {
+    console.error("Error in submitting contact form", error.message);
+    const err = createHttpError(500, "Error in submitting contact form");
+    err.additionalFields = {success: false} 
+    return next(err);
   }
 };
 
-module.exports.formResponse = async (req, res) => {
+module.exports.formResponse = async (req, res, next) => {
   try {
     const contactFormResponse = await contactModel.find();
     const suggestionFormResponse = await suggestionModel.find();
@@ -103,9 +107,9 @@ module.exports.formResponse = async (req, res) => {
       data: formResponses,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: `Server Error ${err.message}`,
-    });
+    console.log(error.message, "Error in fetching all the formResponses")
+    const err = createHttpError(500, "Internal Server Error");
+    err.additionalFields = {success: false} 
+    next(err);
   }
 };
