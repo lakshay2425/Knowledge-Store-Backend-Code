@@ -1,5 +1,7 @@
-import arcjet, { shield } from "@arcjet/node";
-import config from "../config/config.js"
+const { shield } = require("@arcjet/node");
+const {config} = require("../config/config.js");
+const arcjet = require("@arcjet/node");
+
 
 const attackProtection = arcjet({
   key: config.get("ARCJET_KEY"),
@@ -10,4 +12,4 @@ const attackProtection = arcjet({
   ],
 });
 
-export default attackProtection;
+module.exports =  attackProtection;
