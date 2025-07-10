@@ -3,7 +3,7 @@ var router = express.Router();
 const {fetchBooks,  fetchBook, fetchRecommendedBooks} = require("../controllers/indexController"); 
 
 router.get("/", (req, res) => {
-  res.send("Welcome to Knowledge Store Backend");
+  res.json({message: "Welcome to Knowledge Store Backend"});
 });
 
 router.get('/books', fetchBooks);

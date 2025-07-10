@@ -3,11 +3,12 @@ const itemSchema = require("../utilis/joiValidator");
 const {deleteAllProducts, deleteBook} = require("../utilis/deleteAll"); 
 const wishlistModel = require("../models/wishlist");
 const cartModel = require("../models/cart");
-//const {moveBook} = require("../utilis/moveBook");
+const createHttpError = require("http-errors");
 
 const validateInput = (bookName, email) => {
   const { error, value } = itemSchema.validate({ bookName, email });
   if (error) {
+    console.log("Invalid Input",error.message)
     throw new Error(error.details[0].message);
   }
   return value;
@@ -19,37 +20,33 @@ async function addBookToWishlist(bookName, email) {
     if(value){
       const existingBook = await wishlistModel.findOne({ bookName, email });
       if (existingBook) {
-        //console.log("Already exist");
         return {
           message: "Book already exists in the wishlist",
           success: false,
           exist: true
-        }; // Book already exists in the cart
-      }else{
+        }; 
+      }
         await wishlistModel.create({ bookName, email });
-       // console.log("Added to wishlist");
         return {
           message: "Book added to wishlist",
           success: true,
           exist: false
         }; 
-      }
     }
-  } catch (error) {
+  } catch (error){
+    console.error("Failed to add book to wishlist", error.message);
     return false;
   }
 }
+
 //Function to add a book to wishlist
-module.exports.addToWishlist = async (req, res) => {
+module.exports.addToWishlist = async (req, res, next) => {
   try {
     const {email, bookName} = req.body; 
-    // console.log(email, bookName);
     if (!bookName || !email) {
-      return res.status(400).json({ error: "Book name and email is required" });
+      return next(createHttpError(400, "Book name and email is required"));
     }
-
     const result = await addBookToWishlist(bookName, email);
-    //console.log(result);
     if (result.success) {
       return res.status(201).json({
         message: "Book added to cart successfully",
@@ -57,34 +54,26 @@ module.exports.addToWishlist = async (req, res) => {
         exist: false
       })
     } else {
-      if(result.exist){
-        return res.status(409).json({ 
-        message: "Book already exist in wishlist",
+      const doesExist = result.exist;
+      return res.status(doesExist? 409 : 404).json({
+        message: doesExist? "Book already exist in wishlist" : "Falied to add book to wishlist",
         success: false,
-        exist: true
-        })
-      }else{
-        return res.status(404).json({
-          success: false,
-          message: "Falied to add book to wishlist",
-          exist: false
-        })
-      } 
+        exist: doesExist
+      })
     }
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      error: "Server error"
-    });
+    console.error("Error in adding book to wishlist",error.message);
+    next(createHttpError(500, "Internal Server error in adding book to wishlist"))
   }
 };
 
 //Function to fetch wishlist books of a user
-module.exports.fetchWishlistData = async (req, res) => {
+module.exports.fetchWishlistData = async (req, res, next) => {
   try {
     const email = req.query.email;
+    if(!email){
+      return next(createHttpError(400, "Missing required field"))
+    }
     const regex = new RegExp(email, 'i'); // Case-insensitive regular expression
     const data = await wishlistModel.find({ email: regex });
     if (data.length > 0) {
@@ -104,40 +93,37 @@ module.exports.fetchWishlistData = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: "Server error" });
+    console.error("Error in fetching user's wishlist book",error.message);
+    next(createHttpError(500, "Server Error"));
   }
 };
 
 //Function to delete a book from user wishlist section
-module.exports.deleteWishlistProduct = async (req, res) => {
+module.exports.deleteWishlistProduct = async (req, res, next) => {
   try {
     const { bookName, email } = req.query;
-
     if (!email || !bookName) {
-      return res.status(404).json({
-        message: "Email and bookName is required",
-        success: false
-      })
+      const err = createHttpError(400, "Required field are missing");
+      err.additionalFields = {success: false};
+      return next(err);
     }
-    await deleteBook(bookName, email, "Wishlist", res);
+    await deleteBook(bookName, email, "Wishlist", res, next);
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: `Server error ${error.message}` , succes: false});
+    console.error("Error in deleting the book from wishlist",error.message);
+    const err = createHttpError(500, "Server error"); 
+    err.additionalFields = {success: false};
+    next(err);
   }
 }
 
-module.exports.moveBookFromCartToWishlist = async (req, res) => {
+module.exports.moveBookFromCartToWishlist = async (req, res, next) => {
   try {
     const { bookName, email } = req.body;
     if(!bookName || !email){
-      return res.status(400).json({
-        message : 'Fields are required',
-        success: false
-    })
+      const err = createHttpError(400, "Missing fields required");
+      err.additionalFields = {success: false};
+      return next(err);
   }
-  console.log("Params are there bookName, and email");
-    //await moveBook(bookName, email, res, "cart", "wishlist");
     await cartModel.findOneAndDelete({
       $and: [
         { bookName },
@@ -151,51 +137,42 @@ module.exports.moveBookFromCartToWishlist = async (req, res) => {
         success: true,
         exist: false,
       })
-    } else {
-      if(result.exist){
-        return res.status(409).json({
-          message: "Book already exist in wishlist",
-          success: false,
-          exist: true,
-        })  
-      }else{
+    } 
+    else {
+      const doesExist = result.exist;
+      if(!doesExist){
         await cartModel.create({
           bookName,
           email
         })
-        return res.status(404).json({
-          message: "Failed to move the book from cart to wishlist Try again later",
-          success: false,
-          exist: false,
-        }) 
       }
+      return res.status(doesExist? 409 : 404).json({
+        message: doesExist? "Book already exist in wishlist" : "Failed to move the book from cart to wishlist Try again later",
+        success: false,
+        exist: doesExist
+      })
     }
   } catch (error) {
-    return res.status(500).json({
-      message: error.message,
-      success: false
-    })
+    console.error("Error in moving book from cart to wishlist", error.message);
+      const err = createHttpError(500, "Internal Server Error");
+      err.additionalFields = {success: false};
+      return next(err);
   }
 }
 
-module.exports.deleteAllWishlistProduct = async (req, res) => {
+module.exports.deleteAllWishlistProduct = async (req, res, next) => {
   try {
     const { email } = req.query;
     if (!email) {
-      return res.status(400).json({
-        message: "Email is required",
-        success: false
-      })
+      return next(createHttpError(400, "Missing required field"))
     }
-    const response = await deleteAllProducts(email, "wishlist");
+    await deleteAllProducts(email, "wishlist");
     return res.status(200).json({
       message : "All wishlist products deleted successfully",
       success : true
     })
   } catch (error){
-    return res.status(500).json({
-      success : false,
-      message : "Error in deleting all products, Try again later"
-    })
+    console.error("Error in deleting all wishlist product", error.message);
+    next(createHttpError(500, "Error in deleting all products, Try again later"));
   }
 }
