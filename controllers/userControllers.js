@@ -2,38 +2,30 @@ const orders = require("../models/order");
 const testimonalModel = require("../models/testimonial");
 const bookReviewModel = require("../models/review");
 const userModel = require("../models/user");
+const {returnError} = require("../utilis/returnError.js")
 
-module.exports.profileDetails = async (req, res) => {
+module.exports.profileDetails = async (req, res, next) => {
   const { email } = req.body;
-
   if (!email) {
-
-    return res.status(404).json({
-      message: "Email is required"
-    })
+    return returnError(400, "Email is required", next);
   }
-
   const userDetails = await userModel.findOne({ emailId: email }).select('-passwordHash');
-  const numberOfOrders = userDetails.numberOfOrders;
 
   return res.status(200).json({
     message: "User Profile Details fetched successfully",
-    orders: 0,
-    userDetails: userDetails
+    orders: userDetails.numberOfOrders,
+    userDetails
   })
 }
 
 
-module.exports.bookReview = async (req, res) => {
+module.exports.bookReview = async (req, res, next) => {
   try {
     const { bookName, stars, username, description } = req.body;
     if (!bookName || !stars || !username || !description) {
-      return res.status(400).json({
-        success: false,
-        message: "All field are required"
-      })
+      return returnError(400, "Required fields are missing", next);
     }
-    const model = await bookReviewModel.create({
+    await bookReviewModel.create({
       username,
       bookName,
       stars,
@@ -44,22 +36,18 @@ module.exports.bookReview = async (req, res) => {
       success: true
     })
   } catch (error) {
-    res.status(404).json({
-      error: error.message,
-      success: false
-    })
+    console.log(error.message, "Internal Error in adding book review");
+    returnError(500, "Internal Error in adding book review", next);
   }
 }
 
-module.exports.userTestimonial = async (req, res) => {
+module.exports.userTestimonial = async (req, res, next) => {
   try {
     const { username, testimonial } = req.body;
     if (!username || !testimonial) {
-      return res.status(400).json({
-        message: "All fields are required"
-      })
+      return returnError(400, "Required fields are missing", next)
     }
-    const details = await testimonalModel.create({
+    await testimonalModel.create({
       username,
       testimonial
     });
@@ -69,14 +57,12 @@ module.exports.userTestimonial = async (req, res) => {
     })
 
   } catch (error) {
-    res.status(404).json({
-      error: error.message,
-      success: false
-    })
+    console.log(error.message, "Internal Error in adding user testimonial");
+    returnError(500, "Internal Error in adding user testimonial", next);
   }
 }
 
-module.exports.fetchUserTestimonial = async (req, res) => {
+module.exports.fetchUserTestimonial = async (req, res, next) => {
   try {
     const allUserTestimonial = await testimonalModel.find();
     return res.status(200).json({
@@ -85,21 +71,16 @@ module.exports.fetchUserTestimonial = async (req, res) => {
       data: allUserTestimonial
     })
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error: error.message
-    })
+    console.log(error.message, "Internal Error in fetching all testimonials");
+    returnError(500, "Internal Error in fetching all testimonials", next);
   }
 }
 
-module.exports.fetchReveiw = async (req, res) => {
+module.exports.fetchReveiw = async (req, res, next) => {
   try {
     const { bookName } = req.params;
     if (!bookName) {
-      return res.status(404).json({
-        message: "BookName is required",
-        success: false
-      })
+      return returnError(400, "Required fields are missing", next)
     }
     const bookReviews = await bookReviewModel.find({ bookName });
     if (bookReviews.length == 0) {
@@ -115,49 +96,38 @@ module.exports.fetchReveiw = async (req, res) => {
       reviews: bookReviews.length
     })
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error: error.message
-    })
+    console.log(error.message, "Internal Error in fetching book review");
+    returnError(500, "Internal Error in fetching book review", next);
   }
 }
 
-module.exports.deleteUserAccount = async (req, res) => {
+module.exports.deleteUserAccount = async (req, res,next) => {
   try {
     const { username } = req.query;
     if(!username){
-      return res.status(404).json({
-        message: "Username is required",
-        success : false
-      })
+      return returnError(400, "Required field is missing", next)
     }
-    const user = await userModel.findOne({ username });
+    await userModel.findOne({ username });
     const orderDetails = await orders.find({ $and: [{ username }, { status: { $in: ["ordered", "delievered"] } }] });
-    if (orderDetails.length > 0) {
-      return res.status(404).json({
-        message: "Account cannot be deleted becuase you have incoming or delivered orders",
-        success: false
-      })
-    } else {
+    if (!(orderDetails.length > 0)) {
       await userModel.deleteOne({ username });
       return res.status(200).json({
         message: "Account deleted successfully",
         success: true
       })
-    }
-
-
+    }   
+    return res.status(409).json({
+        message: "Account cannot be deleted becuase you have incoming or delivered orders",
+        success: false
+      })
   } catch (error) {
-    return res.status(500).json({
-      message: "Failed to delete the user account",
-      success: false,
-      error: error.message
-    })
+    console.log(error.message, "Internal Error in deleting user account");
+    returnError(500, "Internal Error in deleting user account", next);
   }
 }
 
 
-module.exports.fetchUserDetails = async (req, res) => {
+module.exports.fetchUserDetails = async (req, res,next) => {
   try {
     const userDetail = await userModel.find().select('-passwordHash');
     return res.status(200).json({
@@ -165,10 +135,8 @@ module.exports.fetchUserDetails = async (req, res) => {
       userDetails: userDetail
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    console.log(error.message, "Internal Error in fetching userInfo");
+    returnError(500, "Internal Error in fetching userInfo", next);
   }
 }
 

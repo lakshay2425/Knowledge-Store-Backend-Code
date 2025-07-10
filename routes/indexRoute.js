@@ -16,8 +16,8 @@ const userRoutes = require("./users.js");
 const indexRouter = require("./index.js");
 
 
-const limiter = createRateLimiter(30, 1); // 30 requests per 1 minute
-const authLimiter = createRateLimiter(20, 5); // 20 requests per 5 minutes
+const limiter = createRateLimiter(30, 1); 
+const authLimiter = createRateLimiter(20, 5); 
 
 
 
