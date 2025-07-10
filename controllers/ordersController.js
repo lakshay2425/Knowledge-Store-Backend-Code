@@ -1,17 +1,15 @@
 const orders = require("../models/order");
 const userModel = require("../models/user");
 const bookModel = require("../models/bookInfo");
-const { sendEmail } = require("../utilis/mailFunction");
+const createHttpError = require("http-errors");
+const {returnError} = require("../utilis/returnError");
 
-module.exports.fetchOrders = async (req, res) => {
-    const { email } = req.body;
-  
+module.exports.fetchOrders = async (req, res, next) => {
+    try {
+      const { email } = req.body;
     if (!email) {
-      return res.status(404).json({
-        message: "Email is required"
-      })
+      return returnError(400, "Required field is missing", next);
     }
-  
     const userOrderDetails = await orders.find({ emailId: email });
     const number = userOrderDetails.length;
     return res.status(200).json({
@@ -19,31 +17,29 @@ module.exports.fetchOrders = async (req, res) => {
       orderDetails: userOrderDetails,
       orders: number
     })
+    } catch (error) {
+      console.log(error.message, "Internal Error in fetching user's order");
+      returnError(500, "Internal Error in fetching user's order", next);
+    }
   };
 
 
-  async function placeBookOrder(email, bookName, numberOfDays) {
+  async function placeBookOrder(email, bookName, numberOfDays, next) {
     try {
       const user = await userModel.findOne({ emailId: email });
     if (!user) {
-      return res.status(500).json({
-        message: "User doesn't exist. Login first"
-      })
+      return next(createHttpError(400, "User doesn't exist, Login first"))
     }
     const userFullName = user.fullName;
     const userContactNumber = user.contactNumber;
     const userName = user.username;
     const bookDetails = await bookModel.findOne({ title: bookName });
     if (!bookDetails){
-      return res.status(404).json({
-        message: "Book doesn't exist in the database"
-      })
+      return returnError(404, "Book doesn't exist in the database", next);
     }
     const quantity = bookDetails.quantity;
     if (quantity == 0){
-      return res.status(300).json({
-        message: "Book isn't available"
-      })
+      return returnError(300, "Book is not available", next);
     } else {
       const bookGenre = bookDetails.genres;
       const securityDeposit = bookDetails.price;
@@ -83,53 +79,38 @@ module.exports.fetchOrders = async (req, res) => {
     }
   }
   
-  module.exports.placeOrder = async (req, res) => {
+  module.exports.placeOrder = async (req, res, next) => {
     try {
       const { email, bookName, numberOfDays } = req.body;
       if (!email || !bookName || !numberOfDays) {
-        return res.status(500).json({
-          message: "All field are necessary"
-        })
+        return returnError(400,"Required fields are missing" ,next)
       }
-      const result = await placeBookOrder(email, bookName, numberOfDays);
+      const result = await placeBookOrder(email, bookName, numberOfDays, next);
       if(result.success){
-        const response = await sendEmail(email, 
-          {bookInfo : {
-            title : bookName,
-             quantity: result.quantity,
-              price: result.price,
-              id: result.id,
-              rentalCharges : result.rentCharges 
-            }, total : result.total}, 3 ,"Thank you for ordering and choosing us");
         return res.status(201).json({
-          message: `Orders place successfully, and ${response ? "Mail sent" :" Failed to sent the mail"}`,
+          message: `Orders place successfully}`,
           success : true,
-          mailStatus: response,
         })
       }else{
-        console.log(result.error)
         await bookModel.findOneAndUpdate(
           { title: bookName },
           { quantity: 1 },
           { new: true }
         )
-        return res.status(404).json({
-          message : "Failed to place the order Try again later",
-          success : false
-        })
+        returnError(404, "Failed to place the order", next)
       }
     } catch (error) {
-      console.log(error.message);
-      res.status(500).json({
-        message: "Failed to place the order",
-        error: error.message
-      })
+      console.log(error.message, "Internal Error inplacing the order");
+      returnError(500, "Internal Error in placing the order", next);
     }
   };  
 
-  module.exports.cancelOrder = async (req, res) => {
+  module.exports.cancelOrder = async (req, res, next) => {
     try {
       const { orderId } = req.body;
+      if(!orderId){
+        return returnError(400, "Required field is missing", next)
+      }
       const orderDetails = await orders.findOneAndUpdate(
         { _id: orderId },
         { status: " cancelled" },
@@ -146,25 +127,20 @@ module.exports.fetchOrders = async (req, res) => {
         success: true
       })
     } catch (error) {
-      await orders.findOneAndUpdate(
-        { _id: orderId },
-        { status: "ordered" }
-      );
-      res.status(404).json({
-        message: error.message
-      })
+        console.log("Internal Error in cancelling the order", error.message);
+        returnError(500, "Internal Error in cancelling the order",next);
     }
   }
 
-  module.exports.fetchSpecificOrderDetails = async (req, res) => {
+  module.exports.fetchSpecificOrderDetails = async (req, res, next) => {
     try {
       const { id } = req.params;
+       if(!id){
+        return returnError(400, "Required field is missing", next)
+      }
       const orderDetails = await orders.find({ _id: id });
       if (!orderDetails) {
-        return res.status(404).json({
-          message: "No order exist with this order id",
-          success: false
-        })
+        return returnError(400, "No order with this id exist", next)
       } else {
         res.status(200).json({
           message: "Order Details found",
@@ -173,8 +149,7 @@ module.exports.fetchOrders = async (req, res) => {
         })
       }
     } catch (error) {
-      res.status(404).json({
-        message: error.message
-      })
+      console.log("Internal Error in fetching specific order details", error.message);
+        returnError(500, "Internal Error in fetching specific order details",next);
     }
   }  
