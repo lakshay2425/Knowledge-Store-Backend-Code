@@ -1,41 +1,35 @@
 const { verifyLoginDetails } = require('../utilis/authenticationOperations/verifyLoginDetails');
+const {returnError} = require("../utilis/returnError");
 
-
-module.exports.loginDetails = async (req, res) => {
+module.exports.loginDetails = async (req, res, next) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
-      return res.status(400).json({
-        message: "All fields are required",
-        success : false
-      })
+      return returnError(400, "Required fields are missing",next);
     }
-    const response = await verifyLoginDetails(username, password, req, res);
-  } catch (err) {
-    return res.status(401).json({
-      message : "Unauthorized",
-      success : false
-    });
+    await verifyLoginDetails(username, password, req, res, next);
+  } catch (error) {
+    console.log("Internal Error in verifying user details", error.message);
+    returnError(500, "Internal Error in verifying user details",next);
   }
 };
 
 
 //Function to logout the user
-module.exports.logoutUser = async (req, res) => {
+module.exports.logoutUser = async (req, res, next) => {
   try {
-    // Set the 'token' cookie to expire immediately
     res.clearCookie('token', {
-      httpOnly: true, // Set according to your needs
-      secure: false,  // Set to true if using HTTPS in production
+      httpOnly: true, 
+      secure: false,  
       sameSite: true
     });
 
-    // Send a single response with a success message
     res.status(200).json({
       message: "User logged out successfully",
       success: true
     });
-  } catch (err) {
-    res.status(500).json({ message: `Server Error: ${err.message}`, success: false });
+  } catch (error) {
+    console.log("Internal Error in the process of login out the user", error.message);
+    returnError(500, "Internal Error in in the process of login out the user",next);
   }
 };

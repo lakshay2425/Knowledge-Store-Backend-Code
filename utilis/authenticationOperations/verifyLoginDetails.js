@@ -2,17 +2,33 @@ const bcrypt = require('bcrypt');
 const generateToken = require('../generateToken');
 const Admin = require("../../models/admin")
 const User = require("../../models/user");
-const { sendEmail } = require('../mailFunction');
-
+const {returnError} = require("../returnError");
 
 // Function to verify login details
-module.exports.verifyLoginDetails = async (username, password, req, res) => {
+module.exports.verifyLoginDetails = async (username, password, req, res, next) => {
   try {
-    async function verify(results, res, role) {
+    const isAdmin = await Admin.findOne({ username: username });
+    if (!isAdmin) {
+      const userDetails = await User.findOne({ username });
+      if (!userDetails) {
+        return returnError(404, "User doesn't exist", next);
+      }
+      const role = "user";
+      await verify(userDetails, res, role, username, password, next);
+    }
+    else {
+      const role = "admin";
+      await verify(isAdmin, res, role, username, password, next);
+    }
+  } catch (error) {
+    console.log("Internal Error in verifying user details", error.message);
+    returnError(500, "Internal Error in verifying user details",next);
+  }
+};
+
+    async function verify(results, res, role, username, password,next) {
       if (!results || !role) {
-        return res.status(404).json({
-          message: "All field are required to login"
-        })
+        return returnError(400, "Required fields are missing",next)
       }
       const hash = results.passwordHash;
       const result = await bcrypt.compare(password, hash);
@@ -24,40 +40,16 @@ module.exports.verifyLoginDetails = async (username, password, req, res) => {
           sameSite : true,
           maxAge: 2 * 60 * 60 * 1000,
         });
-        const response = await sendEmail(results.emailId, {ipAddress : req.ip, timestamp: new Date().toLocaleString()}, 2, "There is a new login with your credentials")
         return res.status(200).json(
           { 
             success: true,
              message: "Login successful",
               role , 
               userData : results,
-              mailStatus: response
             });
       } else {
-        return res.status(401).json({ success: false, message: "Invalid Credentials" });
+        return returnError(401, "Invalid Credentials", next);
       }
     }
-
-    const isAdmin = await Admin.findOne({ username: username });
-    if (!isAdmin) {
-      const userDetails = await User.findOne({ username });
-      if (!userDetails) {
-        return res.status(404).json({
-          success : false,
-          message: "User doesn't exist"
-        });
-      }
-      const role = "user";
-      await verify(userDetails, res, role);
-    }
-    else {
-      const role = "admin";
-      await verify(isAdmin, res, role);
-    }
-  } catch (error) {
-    console.log(error.message);
-    return res.status(404).json({ success: false, message: error.message });
-  }
-};
 
 

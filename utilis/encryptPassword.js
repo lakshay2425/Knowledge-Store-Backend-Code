@@ -1,21 +1,8 @@
 const bcrypt = require('bcrypt');
 
-  try {
-    // Function to encrypt password
-    module.exports.encryptPass = (password) => {
-      return new Promise((resolve, reject) => {
-        bcrypt.genSalt(10, (err, salt) => {
-          if (err) reject(err);
-          bcrypt.hash(password, salt, (err, hash) => {
-            if (err) reject(err);
-            resolve(hash);
-          });
-        });
-      });
-    };    
-  } catch (error) {
-    res.status(500).json({
-      error : error.message,
-      success : false
-    });
-  }
+// Function to encrypt password using async/await
+module.exports.encryptPass = async (password) => {
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(password, salt);
+  return hash;
+};

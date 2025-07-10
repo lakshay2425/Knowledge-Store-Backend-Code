@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const {config} = require("../config/config.js")
-try {
-    const secret = config.get("JWT_SECRET");
+
+const secret = config.get("JWT_SECRET");
+
     function generateToken(subject){
         const payload = {
             sub: subject,
@@ -11,8 +12,4 @@ try {
         };
         return jwt.sign(payload, (secret), { expiresIn: '2h' });
     }
-    
-    module.exports = generateToken;
-} catch (error) {
-    res.status(500).send(`Error in generating token`);
-}
+module.exports = generateToken;

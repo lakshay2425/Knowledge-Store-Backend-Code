@@ -1,6 +1,6 @@
 const bookModel = require("../models/bookInfo");
 const orders = require("../models/order");
-const createHttpError = require("http-errors");
+const {returnError} = require("../utilis/returnError.js")
 
  // Function to insert book details in the database
 module.exports.bookDetails = async (req,res, next) => {
@@ -88,8 +88,3 @@ module.exports.fetchAllUserOrders = async (req,res, next)=>{
 }
 
 
-const returnError = (statusCode, message, next)=>{
-  const err = createHttpError(statusCode, message);
-    err.additionalFields = {success: false} 
-    next(err);
-};
