@@ -53,7 +53,7 @@ module.exports.fetchBook = async function (req, res, next) {
           $search: `${regex}`
         }
       });
-      if (!book) {
+      if (book.length == 0) {
         const err = new Error("Book you're trying to search isn't available");
         err.statusCode = 200;
         err.additonalFields = {
