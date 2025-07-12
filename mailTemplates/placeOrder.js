@@ -1,60 +1,36 @@
-const orderConfirmation  = (options)=>{
-    const {bookInfo, total}= options;
-    return (
-        `<!DOCTYPE html>
-<html>
-<head>
-  <title>Knowledge Store - Order Confirmation</title>
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      color: #fff;
-      background-color: #001f3f;
-      line-height: 1.6;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 20px;
-      border-radius: 8px;
-    }
-    h2 {
-      color: #fff;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    p {
-      margin-bottom: 15px;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    li {
-      margin-bottom: 8px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
+const {baseEmailLayout} = require("./baseEmailLayout");
+
+const generateOrderContent = (orders) => {
+  const rows = orders.map(({ orderInfo }, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${orderInfo.id}</td>
+      <td>${orderInfo.title}</td>
+      <td>${orderInfo.quantity}</td>
+      <td>₹${orderInfo.price}</td>
+      <td>₹${orderInfo.rentalCharges}</td>
+    </tr>`).join("");
+
+  const total = orders.reduce((sum, { orderInfo }) => sum + (orderInfo.totalAmount || 0), 0);
+
+  return `
     <h2>Order Confirmation</h2>
-    <p>Thank you for your order from Knowledge Store! Your order ID is ${bookInfo.id}.</p>
-    <p>Order Details:</p>
-    <ul>
-      <li> Book Name ${bookInfo.title}, </li>
-      <li> Quantity ${bookInfo.quantity}, </li>
-      <li> Price of the book ${bookInfo.price}, <li>
-      <li> Rental Charges are ${bookInfo.rentalCharges}</li>
-    </ul>
-    <p>Total: ${total}</p>
+    <p>Thank you for your order from Knowledge Store!</p>
+    <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse: collapse; color: #fff;">
+      <thead>
+        <tr><th>#</th><th>Order ID</th><th>Book Name</th><th>Qty</th><th>Price</th><th>Rental</th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p><strong>Total Amount: ₹${total}</strong></p>
     <p>We will notify you when your order has been shipped.</p>
-  </div>
-</body>
-</html>`
-    )
-}
+  `;
+};
+
+const orderConfirmation = (orders) => baseEmailLayout({
+  title: "Knowledge Store - Order Confirmation",
+  content: generateOrderContent(orders),
+});
 
 
-module.exports.orderConfirmation = orderConfirmation;
+module.exports = orderConfirmation;
