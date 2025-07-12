@@ -36,7 +36,7 @@ module.exports.verifyLoginDetails = async (username, password, req, res, next) =
         const token = generateToken(username);
         res.cookie('token', token, {
           httpOnly: true,
-          secure: false,
+          secure: true,
           sameSite : true,
           maxAge: 2 * 60 * 60 * 1000,
         });

@@ -7,16 +7,15 @@ const app = express();
 const MongoDB = require("./config/mongoose");
 const helmet = require('helmet');
 const {connectRedis} = require("./config/redis")
-const {globalProtection} = require("./middlewares/globalProtection.js")
 const {globalErrorHandler} = require("./middlewares/globalErrorHandler.js")
 const {config} = require("./config/config.js");
-const indexRoute = require("./routes/indexRoute.js")
+const indexRoute = require("./routes/indexRoute.js");
+
 
 MongoDB();
 
 // Set trust proxy (modify as needed for your environment)
 app.set('trust proxy', 1); // or 1, or 'multiple'
-app.use(globalProtection);
 
 
 
@@ -55,7 +54,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use("/api", indexRoute);
+app.use("/api",indexRoute);
 
 
 app.use(globalErrorHandler);
