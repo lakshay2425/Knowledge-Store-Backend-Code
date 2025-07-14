@@ -25,7 +25,8 @@ const authenticate = (req, res, next) => {
       // Proceed to the next middleware or route handler
       next();
     } catch (error) {
-      console.log(error, "Error happend while authenticating");
+      console.error("Auth Error")
+      console.error(error, "Error happend while authenticating");
       if (error.name === 'TokenExpiredError') {
         return res.status(401).json({ message: 'Token expired' });
       } else if (error.name === 'JsonWebTokenError') {

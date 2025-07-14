@@ -82,7 +82,8 @@ module.exports.updateCart = async (req,res,next)=>{
 //Function to add a book to user cart section
 module.exports.addToCart = async (req, res,next) => {
   try {
-    const { bookName, email , rentalPeriod} = req.body; // assuming you have user data available in req.user
+    const {bookName} = req.params;
+    const { email , rentalPeriod} = req.body; // assuming you have user data available in req.user
     if (!bookName || !email ||!rentalPeriod){
       console.log("Missing required fields") 
       return next(createHttpError(400, "Missing required fields"))

@@ -42,7 +42,8 @@ async function addBookToWishlist(bookName, email) {
 //Function to add a book to wishlist
 module.exports.addToWishlist = async (req, res, next) => {
   try {
-    const {email, bookName} = req.body; 
+    const {bookName} = req.params;
+    const {email} = req.body; 
     if (!bookName || !email) {
       return next(createHttpError(400, "Book name and email is required"));
     }
