@@ -12,12 +12,14 @@ const _config = {
     REDIS_URL: process.env.REDIS_URL,
     EMAIL: process.env.EMAIL,
     EMAIL_SMTP_PASSWORD: process.env.EMAIL_SMTP_PASSWORD,
+    JWT_PUBLIC_KEY: process.env.JWT_PUBLIC_KEY,
 }
 
 const config = {
     get(key){
         const value = _config[key];
         if(!value){
+            console.error(`❌ No Environment variable: ${key} is not defined`);
             process.exit(1);
         }
         return value;
