@@ -6,7 +6,7 @@ const cors = require('cors');
 const app = express();
 const MongoDB = require("./config/mongoose");
 const helmet = require('helmet');
-const {connectRedis} = require("./config/redis")
+// const {connectRedis} = require("./config/redis")
 const {globalErrorHandler} = require("./middlewares/globalErrorHandler.js")
 const {config} = require("./config/config.js");
 const indexRoute = require("./routes/indexRoute.js");
@@ -15,7 +15,7 @@ const indexRoute = require("./routes/indexRoute.js");
 MongoDB();
 
 // Set trust proxy (modify as needed for your environment)
-app.set('trust proxy', 1); // or 1, or 'multiple'
+// app.set('trust proxy', 1); // or 1, or 'multiple'
 
 
 
@@ -60,18 +60,21 @@ app.use("/api",indexRoute);
 app.use(globalErrorHandler);
 
 
-(async () => {
-  try {
-    await connectRedis(); // ensure connection first
+// (async () => {
+//   try {
+//     await connectRedis(); // ensure connection first
+//     app.listen(3000, () => {
+//       console.log("🚀 Server running on port 3000");
+//     });
+//   } catch (err) {
+//     console.error("❌ Could not connect to Redis", err);
+//     process.exit(1); // Exit if Redis fails to connect
+//   }
+// })();
+
+
     app.listen(3000, () => {
       console.log("🚀 Server running on port 3000");
     });
-  } catch (err) {
-    console.error("❌ Could not connect to Redis", err);
-    process.exit(1); // Exit if Redis fails to connect
-  }
-})();
-
-
 
 module.exports = app;
