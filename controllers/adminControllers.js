@@ -1,9 +1,9 @@
-const bookModel = require("../models/bookInfo");
-const orders = require("../models/order");
-const {returnError} = require("../utilis/returnError.js")
+import bookModel from "../models/bookInfo.js";
+import orders from "../models/order.js";
+import {returnError} from "../utilis/returnError.js"
 
  // Function to insert book details in the database
-module.exports.bookDetails = async (req,res, next) => {
+export const bookDetails = async (req,res, next) => {
     try{
     const {price, quantity ,genre, book_name, author, img_link, description, reviews, rating, type} = req.body;
     if(!price || !quantity || !genre || !book_name || !author || !img_link || !type){
@@ -23,7 +23,7 @@ module.exports.bookDetails = async (req,res, next) => {
 
 
 //Function to delete a book from the database
-module.exports.deleteBook = async (req,res, next) => {
+export const deleteBook = async (req,res, next) => {
   try {
     const {bookName} = req.params;
     if(!bookName){
@@ -44,7 +44,7 @@ module.exports.deleteBook = async (req,res, next) => {
 };
 
 //Function to update book details in the database
-module.exports.updateBook = async (req,res, next) => {
+export const updateBook = async (req,res, next) => {
   try {
     const {author, genres, price, title, quantity, imageLink} = req.body;
     if(!price || !quantity || !genres || !title || !imageLink){
@@ -66,7 +66,7 @@ module.exports.updateBook = async (req,res, next) => {
   }
 }
 
-module.exports.fetchAllUserOrders = async (req,res, next)=>{
+export const fetchAllUserOrders = async (req,res, next)=>{
   try {
     const orderDetails = await orders.find();
   if(orderDetails.length == 0){

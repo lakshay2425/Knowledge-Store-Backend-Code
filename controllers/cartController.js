@@ -1,9 +1,9 @@
-const cartModel = require("../models/cart");
-const itemSchema = require("../utilis/joiValidator");
-const {deleteAllProducts} = require("../utilis/deleteAll");
-const wishlistModel = require("../models/wishlist"); 
-const {deleteBook} = require("../utilis/deleteAll");
-const createHttpError = require("http-errors");
+import cartModel from "../models/cart.js";
+import itemSchema from "../utilis/joiValidator.js";
+import {deleteAllProducts} from"../utilis/deleteAll.js";
+import wishlistModel from "../models/wishlist"; 
+import {deleteBook} from "../utilis/deleteAll";
+import createHttpError from "http-errors";
 
 const validateInput = (bookName, email) => {
   const { error, value } = itemSchema.validate({ bookName, email });
@@ -46,7 +46,7 @@ async function addBookToCart(bookName, email, rentalPeriod, next) {
 }
 
 //Function to update number of days in cart
-module.exports.updateCart = async (req,res,next)=>{
+export const updateCart = async (req,res,next)=>{
   const {days, bookName} = req.body;
   
   if(!days || !bookName){
@@ -80,7 +80,7 @@ module.exports.updateCart = async (req,res,next)=>{
 }
 
 //Function to add a book to user cart section
-module.exports.addToCart = async (req, res,next) => {
+export const addToCart = async (req, res,next) => {
   try {
     const {bookName} = req.params;
     const { email , rentalPeriod} = req.body; // assuming you have user data available in req.user
@@ -110,7 +110,7 @@ module.exports.addToCart = async (req, res,next) => {
 };
 
 //Function to fetch  book details from user cart section
-module.exports.fetchCartData = async (req, res, next) => {
+export const fetchCartData = async (req, res, next) => {
   try {
     const email = req.body.email;
     if (!email) {
@@ -159,7 +159,7 @@ module.exports.fetchCartData = async (req, res, next) => {
 
 
 //Function to delete a book from user cart section
-module.exports.deleteCartProduct = async (req, res,next) => {
+export const deleteCartProduct = async (req, res,next) => {
   try {
     const { bookName, email } = req.query;
     if (!email || !bookName) {
@@ -176,7 +176,7 @@ module.exports.deleteCartProduct = async (req, res,next) => {
   }
 }
 
-module.exports.moveBookFromWishlisttoCart = async (req, res,next) => {
+export const moveBookFromWishlisttoCart = async (req, res,next) => {
   try {
     const { bookName, email } = req.body;
 
@@ -217,7 +217,7 @@ module.exports.moveBookFromWishlisttoCart = async (req, res,next) => {
 };
 
 
-module.exports.deleteAllCartProduct = async (req, res,next) => {
+export const deleteAllCartProduct = async (req, res,next) => {
   try {
     const { email } = req.query;
     if (!email) {

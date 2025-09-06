@@ -1,4 +1,4 @@
-const paymentFailedTemplate = ({
+export const paymentFailedTemplate = ({
     customerName,
     transactionId,
     attemptedAmount,

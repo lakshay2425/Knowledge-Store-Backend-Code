@@ -1,4 +1,4 @@
-const baseEmailLayout = ({ title, content, year = new Date().getFullYear() }) => `
+export const baseEmailLayout = ({ title, content, year = new Date().getFullYear() }) => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -39,5 +39,3 @@ const baseEmailLayout = ({ title, content, year = new Date().getFullYear() }) =>
 </body>
 </html>
 `;
-
-module.exports = {baseEmailLayout};

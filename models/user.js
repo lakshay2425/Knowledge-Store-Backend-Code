@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+import pkg from 'mongoose';
+const {Schema, model,  models} = pkg;
 
 // Define the UserSchema
-const UserSchema = new mongoose.Schema({
-    _id: { 
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', 
+const UserSchema = new Schema({
+    userId: { 
+        type: String, 
         required: true
     },
     city : {
@@ -35,5 +35,6 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Compile the model
-let User =  mongoose.model.User || mongoose.model("User", UserSchema);
-module.exports = User;
+
+const  User =  models.User || model("User", UserSchema);
+export default User;

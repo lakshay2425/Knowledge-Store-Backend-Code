@@ -1,10 +1,8 @@
-const createHttpError = require("http-errors");
+import createHttpError from "http-errors";
 
-const returnError = (statusCode, message, next)=>{
+export const returnError = (statusCode, message, next) => {
   const err = createHttpError(statusCode, message);
-    err.additionalFields = {success: false} 
-    next(err);
+  err.additionalFields = { success: false }
+  next(err);
 };
 
-
-module.exports = {returnError};

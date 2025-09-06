@@ -1,6 +1,7 @@
-const mongoose = require("mongoose");
+import pkg from 'mongoose';
+const {Schema, model,  models} = pkg;
 
-const cartSchema = new mongoose.Schema({
+const cartSchema = new Schema({
   bookName: {
     type: String,
     required: true,
@@ -33,6 +34,6 @@ cartSchema.pre('save', function(next) {
 });
 
 // Check if the model is already compiled
-const cartModel = mongoose.models.Cart || mongoose.model("Cart", cartSchema);
+const cartModel = models.Cart || model("Cart", cartSchema);
 
-module.exports = cartModel;
+export default cartModel;

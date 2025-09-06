@@ -1,7 +1,8 @@
-const mongoose = require('mongoose');
+import pkg from 'mongoose';
+const {Schema, model,  models} = pkg;
 
 // Define the OrderSchema
-const OrderSchema = new mongoose.Schema({
+const OrderSchema = new Schema({
     userId: { 
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', 
@@ -22,5 +23,5 @@ const OrderSchema = new mongoose.Schema({
 });
 
 // Compile the model
-let Order =  mongoose.model.Order || mongoose.model("Order", OrderSchema);
-module.exports = Order;
+let Order =  model.Order || model("Order", OrderSchema);
+export default Order;

@@ -1,7 +1,8 @@
-const mongoose = require('mongoose');
+import pkg from 'mongoose';
+const {Schema, model,  models} = pkg;
 
 // Define the AdminSchema
-const AdminSchema = new mongoose.Schema({
+const AdminSchema = new Schema({
     fullName: { type: String, required: true },
     emailId: { type: String, required: true, unique: true, lowercase: true },
     contactNumber: { type: String, required: true },
@@ -17,5 +18,6 @@ const AdminSchema = new mongoose.Schema({
 });
 
 // Compile the model
-let Admin =  mongoose.model.Admin || mongoose.model("Admin", AdminSchema);
-module.exports = Admin;
+const Admin =  model.Admin || model("Admin", AdminSchema);
+
+export default Admin;

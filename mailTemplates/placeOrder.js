@@ -1,6 +1,6 @@
-const {baseEmailLayout} = require("./baseEmailLayout");
+import {baseEmailLayout} from "./baseEmailLayout.js";
 
-const generateOrderContent = (orders) => {
+export const generateOrderContent = (orders) => {
   const rows = orders.map(({ orderInfo }, i) => `
     <tr>
       <td>${i + 1}</td>
@@ -27,10 +27,8 @@ const generateOrderContent = (orders) => {
   `;
 };
 
-const orderConfirmation = (orders) => baseEmailLayout({
+export const orderConfirmation = (orders) => baseEmailLayout({
   title: "Knowledge Store - Order Confirmation",
   content: generateOrderContent(orders),
 });
 
-
-module.exports = orderConfirmation;

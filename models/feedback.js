@@ -1,8 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-
-// Assuming you have a User model defined elsewhere
-const User = require('./user');
+import pkg from 'mongoose';
+const {Schema, model,  models} = pkg;
 
 // Define the FeedbackSchema
 const FeedbackSchema = new Schema({
@@ -17,6 +14,6 @@ const FeedbackSchema = new Schema({
 });
 
 // Check if the model has been compiled or not
-let Feedback = mongoose.models.Feedback || mongoose.model('Feedback', FeedbackSchema);
+const Feedback = models.Feedback || model('Feedback', FeedbackSchema);
 
-module.exports = Feedback;
+export default Feedback;

@@ -1,11 +1,11 @@
-const userDetails = require("../utilis/fetchUserId");
-const feedbackModel = require("../models/feedback");
-const suggestionModel = require("../models/suggestion");
-const contactModel = require("../models/contact");
-const createHttpError = require("http-errors");
+import userDetails from"../utilis/fetchUserId.js";
+import feedbackModel from "../models/feedback.js";
+import suggestionModel from "../models/suggestion.js";
+import contactModel from "../models/contact.js";
+import createHttpError from"http-errors";
 
-const doesUserExist = async (gmail, next)=>{
-  const userDetail = await userDetails(gmail);
+const doesUserExist = async (userId, next)=>{
+  const userDetail = await userDetails(userId, next);
     if(!userDetail){
       const err = createHttpError(404, "User doesn't exist");
       err.additionalFields = {success: false} 
@@ -15,16 +15,25 @@ const doesUserExist = async (gmail, next)=>{
 }
 
 //Function to insert feedback details in the database
-module.exports.feedbackDetails = async (req, res,next) => {
+export const feedbackDetails = async (req, res,next) => {
   try {
+    const id = req.uerId;
+    if (!id) {
+      const err = createHttpError(400, "User ID is required");
+      err.additionalFields = {success: false} 
+      return next(err);
+    }
     const { gmail, feedback } = req.body;
     if (!gmail || !feedback) {
       const err = createHttpError(400, "Missing required fields");
       err.additionalFields = {success: false} 
       return next(err);
     }
-    const userDetail = doesUserExist(gmail, next);
-    const userId = userDetail._id.toString();
+    const userDetail = await doesUserExist(id, next);
+    if(!userDetail){
+      return next(createHttpError(40, "User account doesn't exist"))
+    }
+    const userId = userDetail._id;
     await feedbackModel.create({ userId, feedback });
       res.status(201).json({
       message: "Feedback Form submitted successfully",
@@ -39,16 +48,25 @@ module.exports.feedbackDetails = async (req, res,next) => {
 };
 
 // Function to insert contact details in the database
-module.exports.suggestionDetails = async (req, res,next) => {
+export const suggestionDetails = async (req, res,next) => {
   try {
+    const id = req.uerId;
+    if (!id) {
+      const err = createHttpError(400, "User ID is required");
+      err.additionalFields = {success: false} 
+      return next(err);
+    }
     const { gmail, genre, bookName, author } = req.body;
     if (!gmail || !genre || !bookName || !author) {
       const err = createHttpError(400, "Missing required fields");
       err.additionalFields = {success: false} 
       return next(err);
     }
-    const userDetail = doesUserExist(gmail, next);
-    const userId = userDetail._id.toString();
+    const userDetail = await doesUserExist(id, next);
+    if(!userDetail){
+      return next(createHttpError(40, "User account doesn't exist"))
+    }
+    const userId = userDetail._id;
     await suggestionModel.create({
       userId,
       genre,
@@ -68,16 +86,25 @@ module.exports.suggestionDetails = async (req, res,next) => {
 };
 
 // Function to insert contact details in the database
-module.exports.contactDetails = async (req, res,next) => {
+export const contactDetails = async (req, res,next) => {
   try {
+    const id = req.uerId;
+    if (!id) {
+      const err = createHttpError(400, "User ID is required");
+      err.additionalFields = {success: false} 
+      return next(err);
+    }
     const { gmail, concern } = req.body.details;
     if (!gmail || !concern) {
           const err = createHttpError(400, "Missing required fields");
           err.additionalFields = {success: false} 
           return next(err);
     }
-    const userDetail = doesUserExist(gmail, next);
-    const userId = userDetail._id.toString();
+    const userDetail = await doesUserExist(id, next);
+    if(!userDetail){
+      return next(createHttpError(40, "User account doesn't exist"))
+    }
+    const userId = userDetail._id;
     await contactModel.create({ concern, userId });
     res.status(201).json({
       message: "Contact Form submitted successfully",
@@ -91,7 +118,7 @@ module.exports.contactDetails = async (req, res,next) => {
   }
 };
 
-module.exports.formResponse = async (req, res, next) => {
+export const formResponse = async (req, res, next) => {
   try {
     const contactFormResponse = await contactModel.find();
     const suggestionFormResponse = await suggestionModel.find();

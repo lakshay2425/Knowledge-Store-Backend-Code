@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose from'mongoose');
 
 const wishlistSchema = new mongoose.Schema({
   bookName: {
@@ -16,12 +16,12 @@ const wishlistSchema = new mongoose.Schema({
 });
 
 // Virtual property to get full book name with email
-wishlistSchema.virtual('fullBookInfo').get(function() {
+wishlistSchema.virtual('fullBookInfo').get(function () {
   return `${this.bookName} - ${this.email}`;
 });
 
 // Instance method to format the data before saving
-wishlistSchema.methods.formatData = function() {
+wishlistSchema.methods.formatData = function () {
   return {
     bookName: this.bookName.toUpperCase(),
     email: this.email.toLowerCase()
@@ -29,7 +29,7 @@ wishlistSchema.methods.formatData = function() {
 };
 
 // Pre-save hook to format data before saving
-wishlistSchema.pre('save', function(next) {
+wishlistSchema.pre('save', function (next) {
   this.isModified('bookName') && this.bookName.trim();
   this.isModified('email') && this.email.trim();
 

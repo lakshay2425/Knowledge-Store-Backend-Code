@@ -1,4 +1,4 @@
-const orderDelivered = ({orderId, customerName, bookAuthor, bookTitle, deliveryAddress, deliveryDate,websiteUrl,currentYear=new Date().getFullYear(), rentalPrice})=>{
+export const orderDelivered = ({orderId, customerName, bookAuthor, bookTitle, deliveryAddress, deliveryDate,websiteUrl,currentYear=new Date().getFullYear(), rentalPrice})=>{
     `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -424,5 +424,3 @@ const orderDelivered = ({orderId, customerName, bookAuthor, bookTitle, deliveryA
 </html>`
 }
 
-
-module.exports = { orderDelivered };

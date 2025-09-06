@@ -1,25 +1,29 @@
-const orders = require("../models/order");
-const testimonalModel = require("../models/testimonial");
-const bookReviewModel = require("../models/review");
-const userModel = require("../models/user");
-const {returnError} = require("../utilis/returnError.js")
+import orders from "../models/order.js";
+import testimonalModel from "../models/testimonial.js";
+import bookReviewModel from "../models/review.js";
+import userModel from "../models/user.js";
+import {returnError} from"../utilis/returnError.js";
+import createHttpError from "http-errors";
 
-module.exports.profileDetails = async (req, res, next) => {
-  const { email } = req.body;
-  if (!email) {
+export const profileDetails = async (req, res, next) => {
+  const { userId } = req.query;
+  if (!userId){
     return returnError(400, "Email is required", next);
   }
-  const userDetails = await userModel.findOne({ emailId: email }).select('-passwordHash');
-
+  try {
+    const userDetails = await userModel.findOne({ userId });
   return res.status(200).json({
     message: "User Profile Details fetched successfully",
-    orders: userDetails.numberOfOrders,
     userDetails
   })
+  } catch (error) {
+    console.error(error.message, "Internal Error in fetching user profile details");
+    returnError(500, "Internal Error in fetching user profile details", next);
+  }
 }
 
 
-module.exports.bookReview = async (req, res, next) => {
+export const bookReview = async (req, res, next) => {
   try {
     const { bookName, stars, username, description } = req.body;
     if (!bookName || !stars || !username || !description) {
@@ -41,7 +45,7 @@ module.exports.bookReview = async (req, res, next) => {
   }
 }
 
-module.exports.userTestimonial = async (req, res, next) => {
+export const userTestimonial = async (req, res, next) => {
   try {
     const { username, testimonial } = req.body;
     if (!username || !testimonial) {
@@ -62,7 +66,7 @@ module.exports.userTestimonial = async (req, res, next) => {
   }
 }
 
-module.exports.fetchUserTestimonial = async (req, res, next) => {
+export const fetchUserTestimonial = async (req, res, next) => {
   try {
     const allUserTestimonial = await testimonalModel.find();
     return res.status(200).json({
@@ -76,7 +80,7 @@ module.exports.fetchUserTestimonial = async (req, res, next) => {
   }
 }
 
-module.exports.fetchReveiw = async (req, res, next) => {
+export const fetchReveiw = async (req, res, next) => {
   try {
     const { bookName } = req.params;
     if (!bookName) {
@@ -101,7 +105,7 @@ module.exports.fetchReveiw = async (req, res, next) => {
   }
 }
 
-module.exports.deleteUserAccount = async (req, res,next) => {
+export const deleteUserAccount = async (req, res,next) => {
   try {
     const { username } = req.query;
     if(!username){
@@ -127,9 +131,9 @@ module.exports.deleteUserAccount = async (req, res,next) => {
 }
 
 
-module.exports.fetchUserDetails = async (req, res,next) => {
+export const fetchUserDetails = async (req, res,next) => {
   try {
-    const userDetail = await userModel.find().select('-passwordHash');
+    const userDetail = await userModel.find();
     return res.status(200).json({
       message: "User details fetched successfully",
       userDetails: userDetail
@@ -138,5 +142,29 @@ module.exports.fetchUserDetails = async (req, res,next) => {
     console.log(error.message, "Internal Error in fetching userInfo");
     returnError(500, "Internal Error in fetching userInfo", next);
   }
+}
+
+export const onBoarding= async (req, res, next) => {
+  const { formData} = req.body;
+  if(!formData){
+    return next(createHttpError(400, "Form data is required"));
+  }
+  const {city, contactNumber, address, preferences, gender} = formData;
+  let user;
+  try {
+    user  = await userModel.create({
+      city,
+      contactNumber,
+      address,
+      gender,
+      preferences})
+  } catch (error) {
+    console.error(error.message, "Internal Error in onboarding user");
+    return next(createHttpError(500, "Internal Error in onboarding user"));
+  }
+  return res.status(201).json({
+    message: "User onboarded successfully",
+    userId: user._id,
+  });
 }
 

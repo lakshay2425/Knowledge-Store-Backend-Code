@@ -1,16 +1,17 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {deleteUserAccount, profileDetails,  userTestimonial,bookReview,  fetchUserTestimonial, fetchReveiw, fetchUserDetails} = require("../controllers/userControllers");
+import { deleteUserAccount, profileDetails, userTestimonial, bookReview, fetchUserTestimonial, fetchReveiw, fetchUserDetails, onBoarding } from "../controllers/userControllers.js";
 
 
-router.post("/profile", profileDetails);
+router.get("/profile", profileDetails);
 router.post("/bookReview", bookReview);
-router.post("/testimonial",userTestimonial);
+router.post("/testimonial", userTestimonial);
 router.get("/fetchTestimonial", fetchUserTestimonial);
 router.get("/fetchBookReview/:bookName", fetchReveiw);
 router.delete("/deleteAccount", deleteUserAccount);
-router.get("/fetchUserDetails", fetchUserDetails)
+router.get("/fetchUserDetails", fetchUserDetails);
+router.post("/onboarding", onBoarding);
 
-module.exports = router;
+export default router
 
 

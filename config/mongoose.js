@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const {config} = require("./config.js")
+import  mongoose from 'mongoose'
+import { config } from "./config.js";
 
 const dbURI = config.get("MONGO_ATLAS_URI");
 
@@ -26,8 +26,7 @@ mongoose.connection.on('disconnected', () => {
   console.log('Mongoose disconnected');
 });
 
-module.exports = connectToDatabase;
-
+export default connectToDatabase;
 
 
 

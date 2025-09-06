@@ -1,15 +1,12 @@
-const express = require('express');
+import  express from 'express';
 const router = express.Router();
-const {contactDetails,feedbackDetails,suggestionDetails, formResponse} = require('../controllers/formController');
+import {contactDetails,feedbackDetails,suggestionDetails, formResponse} from '../controllers/formController.js';
 
 
 router.post('/contactDetails',  contactDetails);
-
 router.post('/suggestionDetails',  suggestionDetails );
-
 router.post('/feedbackDetails', feedbackDetails );
-
 router.get("formResponse", formResponse);
 
 
-module.exports = router;
+export default router;

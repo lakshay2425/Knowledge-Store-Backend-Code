@@ -15,7 +15,7 @@ const _config = {
     JWT_PUBLIC_KEY: process.env.JWT_PUBLIC_KEY,
 }
 
-const config = {
+export const config = {
     get(key){
         const value = _config[key];
         if(!value){
@@ -26,4 +26,3 @@ const config = {
     }
 }
 
-module.exports.config =  config;

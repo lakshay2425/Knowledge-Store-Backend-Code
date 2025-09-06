@@ -1,7 +1,8 @@
-const mongoose = require('mongoose');
+import pkg from 'mongoose';
+const {Schema, model,  models} = pkg;
 
 
-const BookSchema = new mongoose.Schema({
+const BookSchema = new Schema({
     author: { type: String, required: true },
     genre: { type: String , required : true},
     price: { type: Number, required: true },
@@ -25,6 +26,6 @@ const BookSchema = new mongoose.Schema({
     collection: 'books'
 });
 
-const bookModel = mongoose.models.Book || mongoose.model('Book', BookSchema);
+const bookModel = models.Book || model('Book', BookSchema);
 
-module.exports = bookModel;
+export default bookModel;

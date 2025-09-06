@@ -1,15 +1,15 @@
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const cors = require('cors');
+import express from'express';
+import path from'path';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import cors from 'cors';
+import MongoDB from "./config/mongoose.js";
+import helmet from 'helmet';
+// import {connectRedis} from "./config/redis.js"
+import {globalErrorHandler} from "./middlewares/globalErrorHandler.js"
+import {config}  from "./config/config.js";
+import indexRoute from "./routes/indexRoute.js";
 const app = express();
-const MongoDB = require("./config/mongoose");
-const helmet = require('helmet');
-// const {connectRedis} = require("./config/redis")
-const {globalErrorHandler} = require("./middlewares/globalErrorHandler.js")
-const {config} = require("./config/config.js");
-const indexRoute = require("./routes/indexRoute.js");
 
 
 MongoDB();
@@ -59,22 +59,17 @@ app.use("/api",indexRoute);
 
 app.use(globalErrorHandler);
 
+app.listen(config.get("PORT"), () => {
+  console.log("🚀 Server running on port 3000");
+});
 
 // (async () => {
 //   try {
 //     await connectRedis(); // ensure connection first
-//     app.listen(3000, () => {
-//       console.log("🚀 Server running on port 3000");
-//     });
 //   } catch (err) {
 //     console.error("❌ Could not connect to Redis", err);
 //     process.exit(1); // Exit if Redis fails to connect
 //   }
 // })();
 
-
-    app.listen(3000, () => {
-      console.log("🚀 Server running on port 3000");
-    });
-
-module.exports = app;
+// module.exports = app;

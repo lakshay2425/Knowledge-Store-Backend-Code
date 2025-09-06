@@ -1,16 +1,10 @@
-var express = require('express');
-var router = express.Router();
-const {fetchBooks,  fetchBook, fetchRecommendedBooks} = require("../controllers/indexController"); 
-
-router.get("/", (req, res) => {
-  res.json({message: "Welcome to Knowledge Store Backend"});
-});
+import  express from 'express';
+let router = express.Router();
+import {fetchBooks,  fetchBook, fetchRecommendedBooks} from "../controllers/indexController.js"; 
 
 router.get('/books', fetchBooks);
-
-
 router.get("/search/:bookName", fetchBook);
-
 router.get("/recommendedBooks", fetchRecommendedBooks);
 
-module.exports = router;
+
+export default router;

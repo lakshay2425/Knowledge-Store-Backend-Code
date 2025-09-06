@@ -1,4 +1,4 @@
-const Joi = require('joi');
+import  Joi from 'joi';
 
 const itemSchema = Joi.object({
   bookName: Joi.string().min(6).max(255).required().messages({
@@ -11,5 +11,6 @@ const itemSchema = Joi.object({
     'any.required': 'Email is required'
   })
 });
+
 
 module.exports = itemSchema;

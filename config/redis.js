@@ -1,10 +1,9 @@
 // redisClient.js
-const { createClient } = require("redis");
-const {config} = require("./config.js")
+import { createClient } from "redis";
+import { config } from "./config.js";
 
-const redisClient = createClient({
+export const redisClient = createClient({
   url: config.get("REDIS_URL"),
-  //legacyMode: true, // Needed for Upstash compatibility
   socket: {
     reconnectStrategy: (retries) => {
       // Reconnect up to 3 seconds with an exponential backoff strategy
@@ -23,7 +22,7 @@ redisClient.on("connect", () => {
   console.log("✅ Connected to Redis");
 });
 
-const connectRedis = async () => {
+export const connectRedis = async () => {
   try {
     if (!redisClient.isOpen) {
       await redisClient.connect(); // Try to connect
@@ -33,4 +32,4 @@ const connectRedis = async () => {
   }
 };
 
-module.exports = { redisClient, connectRedis };
+// module.exports = { redisClient, connectRedis };

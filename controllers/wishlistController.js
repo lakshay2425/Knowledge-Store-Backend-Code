@@ -1,9 +1,9 @@
-const bookModel = require("../models/bookInfo");
-const itemSchema = require("../utilis/joiValidator");
-const {deleteAllProducts, deleteBook} = require("../utilis/deleteAll"); 
-const wishlistModel = require("../models/wishlist");
-const cartModel = require("../models/cart");
-const createHttpError = require("http-errors");
+import bookModel from"../models/bookInfo.js";
+import itemSchema from "../utilis/joiValidator.js";
+import {deleteAllProducts, deleteBook} from "../utilis/deleteAll.js"; 
+import wishlistModel from "../models/wishlist.js";
+import cartModel from "../models/cart.js";
+import createHttpError from "http-errors";
 
 const validateInput = (bookName, email) => {
   const { error, value } = itemSchema.validate({ bookName, email });
@@ -40,10 +40,11 @@ async function addBookToWishlist(bookName, email) {
 }
 
 //Function to add a book to wishlist
-module.exports.addToWishlist = async (req, res, next) => {
+export const addToWishlist = async (req, res, next) => {
   try {
     const {bookName} = req.params;
     const {email} = req.body; 
+    console.log(bookName, req.body, "Book Name and Email in addToWishlist");
     if (!bookName || !email) {
       return next(createHttpError(400, "Book name and email is required"));
     }
@@ -69,7 +70,7 @@ module.exports.addToWishlist = async (req, res, next) => {
 };
 
 //Function to fetch wishlist books of a user
-module.exports.fetchWishlistData = async (req, res, next) => {
+export const fetchWishlistData = async (req, res, next) => {
   try {
     const email = req.query.email;
     if(!email){
@@ -100,7 +101,7 @@ module.exports.fetchWishlistData = async (req, res, next) => {
 };
 
 //Function to delete a book from user wishlist section
-module.exports.deleteWishlistProduct = async (req, res, next) => {
+export const deleteWishlistProduct = async (req, res, next) => {
   try {
     const { bookName, email } = req.query;
     if (!email || !bookName) {
@@ -117,7 +118,7 @@ module.exports.deleteWishlistProduct = async (req, res, next) => {
   }
 }
 
-module.exports.moveBookFromCartToWishlist = async (req, res, next) => {
+export const moveBookFromCartToWishlist = async (req, res, next) => {
   try {
     const { bookName, email } = req.body;
     if(!bookName || !email){
@@ -161,7 +162,7 @@ module.exports.moveBookFromCartToWishlist = async (req, res, next) => {
   }
 }
 
-module.exports.deleteAllWishlistProduct = async (req, res, next) => {
+export const deleteAllWishlistProduct = async (req, res, next) => {
   try {
     const { email } = req.query;
     if (!email) {

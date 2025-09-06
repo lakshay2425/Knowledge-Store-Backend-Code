@@ -1,19 +1,22 @@
-const orders = require("../models/order");
-const userModel = require("../models/user");
-const bookModel = require("../models/bookInfo");
-const createHttpError = require("http-errors");
-const {returnError} = require("../utilis/returnError");
+import orders from"../models/order.js";
+import userModel from "../models/user.js";
+import bookModel from"../models/bookInfo.js";
+import createHttpError from "http-errors";
+import {returnError} from "../utilis/returnError.js";
 
-module.exports.fetchOrders = async (req, res, next) => {
+export const fetchOrders = async (req, res, next) => {
     try {
-      const { email } = req.body;
-    if (!email) {
+      const { userId } = req.query;
+    if (!userId) {
       return returnError(400, "Required field is missing", next);
     }
-    const userOrderDetails = await orders.find({ emailId: email });
-    const number = userOrderDetails.length;
+    const userOrderDetails = await orders.find({ userId });
+    let number = 0;
+    if(userOrderDetails.length > 0){      
+      number = userOrderDetails.length;
+    }
     return res.status(200).json({
-      message: "User Profile Details and Order Details fetched successfully",
+      message: "User's Order Details fetched successfully",
       orderDetails: userOrderDetails,
       orders: number
     })
@@ -79,7 +82,7 @@ module.exports.fetchOrders = async (req, res, next) => {
     }
   }
   
-  module.exports.placeOrder = async (req, res, next) => {
+  export const placeOrder = async (req, res, next) => {
     try {
       const { email, bookName, numberOfDays } = req.body;
       if (!email || !bookName || !numberOfDays) {
@@ -105,7 +108,7 @@ module.exports.fetchOrders = async (req, res, next) => {
     }
   };  
 
-  module.exports.cancelOrder = async (req, res, next) => {
+  export const cancelOrder = async (req, res, next) => {
     try {
       const { orderId } = req.body;
       if(!orderId){
@@ -132,7 +135,7 @@ module.exports.fetchOrders = async (req, res, next) => {
     }
   }
 
-  module.exports.fetchSpecificOrderDetails = async (req, res, next) => {
+  export const fetchSpecificOrderDetails = async (req, res, next) => {
     try {
       const { id } = req.params;
        if(!id){

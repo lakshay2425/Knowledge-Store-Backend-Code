@@ -1,10 +1,10 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {fetchOrders, placeOrder, cancelOrder, fetchSpecificOrderDetails} = require("../controllers/ordersController");
+import { fetchOrders, placeOrder, cancelOrder, fetchSpecificOrderDetails } from "../controllers/ordersController.js";
 
-router.post("/fetch", fetchOrders);
+router.get("/fetch", fetchOrders);
 router.post("/placeOrder", placeOrder);
 router.patch("/cancelOrder", cancelOrder);
 router.get("/:id", fetchSpecificOrderDetails);
 
-module.exports = router;
+export default router

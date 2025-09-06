@@ -1,4 +1,4 @@
-const orderReturned = ({customerName, orderId, returnDate, websiteUrl,rentalPeriod,currentYear=currentYear=new Date().getFullYear(),refundAmount,bookAuthor,bookTitle, totalPaid})=>{
+export const orderReturned = ({customerName, orderId, returnDate, websiteUrl,rentalPeriod,currentYear=currentYear=new Date().getFullYear(),refundAmount,bookAuthor,bookTitle, totalPaid})=>{
     `<!DOCTYPE html>
 <html lang="en">
 <head>

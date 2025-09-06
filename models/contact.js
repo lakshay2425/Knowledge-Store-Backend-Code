@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+import pkg from 'mongoose';
+const {Schema, model,  models} = pkg;
 
 
 // Define the ContactSchema
@@ -15,6 +15,6 @@ const ContactSchema = new Schema({
 });
 
 // Compile the model
-let Contact = mongoose.model.Contact || mongoose.model('Contact', ContactSchema); 
+const Contact = model.Contact || model('Contact', ContactSchema); 
 
-module.exports = Contact;
+export default Contact;

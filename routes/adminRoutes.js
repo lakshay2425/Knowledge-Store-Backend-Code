@@ -1,16 +1,11 @@
-const express = require('express');
+import  express from 'express';
 const router = express.Router();
-const {bookDetails, deleteBook, updateBook, fetchAllUserOrders} = require("../controllers/adminControllers");
+import {bookDetails, deleteBook, updateBook, fetchAllUserOrders} from "../controllers/adminControllers.js";
 
 
 router.post("/create", bookDetails );
-
-
 router.delete("/delete/:bookName", deleteBook);
-
 router.put("/update/:bookName", updateBook);
-
 router.get("/userOrders", fetchAllUserOrders);
 
-
-module.exports = router;
+export default router;

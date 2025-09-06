@@ -1,11 +1,12 @@
 {
   "name": "backend",
   "version": "0.0.0",
-  "type": "commonjs",
+  "type": "module",
   "private": true,
   "scripts": {
+    "dev" : "nodemon --env-file=.env app.js",
     "start": "node ./bin/www",
-    "dev": "nodemon --env-file=.env app.js",
+    "build" : "node --env-file=.env app.js",
     "lint": "eslint ."
   },
   "dependencies": {

@@ -1,6 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-
+import pkg from 'mongoose';
+const { Schema, model, models } = pkg;
 
 // Define the SuggestedBookSchema
 const SuggestedBookSchema = new Schema({
@@ -16,6 +15,6 @@ const SuggestedBookSchema = new Schema({
 });
 
 // Check if the model has been compiled or not
-let SuggestedBook = mongoose.models.SuggestedBook || mongoose.model('SuggestedBook', SuggestedBookSchema);
+const SuggestedBook = models.SuggestedBook || model('SuggestedBook', SuggestedBookSchema);
 
-module.exports = SuggestedBook;
+export default SuggestedBook;
