@@ -174,6 +174,7 @@ export const deleteCartProduct = asyncHandler(async (req, res, next) => {
 })
 
 export const moveBookFromWishlisttoCart = async (req, res, next) => {
+  const session = await wishlistModel.startSession();
   try {
     const email = req.gmail;
     const { bookName } = req.body;
@@ -183,7 +184,6 @@ export const moveBookFromWishlisttoCart = async (req, res, next) => {
       err.additonalFields = { success: false };
       return next(err);
     }
-    const session = await wishlistModel.startSession();
     session.startTransaction();
     const deleteFromWishlist = await wishlistModel.findOneAndDelete({
       $and: [
@@ -204,12 +204,14 @@ export const moveBookFromWishlisttoCart = async (req, res, next) => {
         })
       }
     }
+    session.commitTransaction();
     return res.status(201).json({
       message: "Book moved to cart successfully",
       success: true,
       exist: false
     })
   } catch (error) {
+    session.abortTransaction();
     console.error("Error in moving book from wishlist to cart", error.message)
     return res.status(500).json({
       message: error.message,
