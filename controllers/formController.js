@@ -1,41 +1,43 @@
-import findUserById from"../utilis/fetchUserId.js";
+import userDetails from"../utilis/fetchUserId.js";
 import feedbackModel from "../models/feedback.js";
 import suggestionModel from "../models/suggestion.js";
 import contactModel from "../models/contact.js";
 import createHttpError from"http-errors";
 
-export const doesUserExist = async (userId, next)=>{
-  const userDetail = await findUserById(userId, next);
+const doesUserExist = async (userId, next)=>{
+  const userDetail = await userDetails(userId, next);
     if(!userDetail){
-      return {
-        exist: false
-      }
+      const err = createHttpError(404, "User doesn't exist");
+      err.additionalFields = {success: false} 
+      return next(err);
     }
-    return {
-      success: true,
-      userDetail
-    };
+    return userDetail;
 }
 
 //Function to insert feedback details in the database
 export const feedbackDetails = async (req, res,next) => {
   try {
-    const id = req.userId;
-    
-    const { feedback } = req.body;
-    if (!feedback) {
+    const id = req.uerId;
+    if (!id) {
+      const err = createHttpError(400, "User ID is required");
+      err.additionalFields = {success: false} 
+      return next(err);
+    }
+    const { gmail, feedback } = req.body;
+    if (!gmail || !feedback) {
       const err = createHttpError(400, "Missing required fields");
       err.additionalFields = {success: false} 
       return next(err);
     }
     const userDetail = await doesUserExist(id, next);
-    if(!userDetail.success){
+    if(!userDetail){
       return next(createHttpError(40, "User account doesn't exist"))
     }
-    const userId = userDetail.userDetail._id;
+    const userId = userDetail._id;
     await feedbackModel.create({ userId, feedback });
       res.status(201).json({
       message: "Feedback Form submitted successfully",
+      success: true
     })
   } catch (error) {
     console.error("Error in submitting feedback form", error.message);
@@ -48,23 +50,23 @@ export const feedbackDetails = async (req, res,next) => {
 // Function to insert contact details in the database
 export const suggestionDetails = async (req, res,next) => {
   try {
-    const id = req.userId;
+    const id = req.uerId;
     if (!id) {
       const err = createHttpError(400, "User ID is required");
       err.additionalFields = {success: false} 
       return next(err);
     }
-    const {  genre, bookName, author } = req.body;
-    if ( !genre || !bookName || !author) {
+    const { gmail, genre, bookName, author } = req.body;
+    if (!gmail || !genre || !bookName || !author) {
       const err = createHttpError(400, "Missing required fields");
       err.additionalFields = {success: false} 
       return next(err);
     }
     const userDetail = await doesUserExist(id, next);
-    if(!userDetail.success){
+    if(!userDetail){
       return next(createHttpError(40, "User account doesn't exist"))
     }
-    const userId = userDetail.userDetail._id;
+    const userId = userDetail._id;
     await suggestionModel.create({
       userId,
       genre,
@@ -73,6 +75,7 @@ export const suggestionDetails = async (req, res,next) => {
     });
     res.status(201).json({
       message: "Suggestion Form submitted successfully",
+      success: true
     })
   } catch (error) {
     console.error("Error in submitting suggestion form", error.message);
@@ -85,25 +88,27 @@ export const suggestionDetails = async (req, res,next) => {
 // Function to insert contact details in the database
 export const contactDetails = async (req, res,next) => {
   try {
-    const id = req.userId;
-    const { concern } = req.body.details;
-    if (!concern) {
+    const id = req.uerId;
+    if (!id) {
+      const err = createHttpError(400, "User ID is required");
+      err.additionalFields = {success: false} 
+      return next(err);
+    }
+    const { gmail, concern } = req.body.details;
+    if (!gmail || !concern) {
           const err = createHttpError(400, "Missing required fields");
           err.additionalFields = {success: false} 
           return next(err);
     }
-    console.log("All field are present")
     const userDetail = await doesUserExist(id, next);
-    console.log("User Detail", userDetail)
-    if(!userDetail.success){
-      console.log("user doesn't exist")
+    if(!userDetail){
       return next(createHttpError(40, "User account doesn't exist"))
     }
-          console.log("user exist")
-    const userId = userDetail.userDetail._id;
+    const userId = userDetail._id;
     await contactModel.create({ concern, userId });
     res.status(201).json({
       message: "Contact Form submitted successfully",
+      success: true
     })
   } catch (error) {
     console.error("Error in submitting contact form", error.message);
@@ -124,6 +129,7 @@ export const formResponse = async (req, res, next) => {
       feedbackFormResponse,
     };
     return res.status(200).json({
+      success: true,
       message: "Form Responses",
       data: formResponses,
     });

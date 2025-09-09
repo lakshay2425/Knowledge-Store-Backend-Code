@@ -4,7 +4,7 @@ const {Schema, model,  models} = pkg;
 // Define the OrderSchema
 const OrderSchema = new Schema({
     userId: { 
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User', 
         required: true
     },
@@ -23,5 +23,5 @@ const OrderSchema = new Schema({
 });
 
 // Compile the model
-const  Order =  models.Order || model("Order", OrderSchema);
+let Order =  model.Order || model("Order", OrderSchema);
 export default Order;

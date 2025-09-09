@@ -4,9 +4,6 @@ import bookReviewModel from "../models/review.js";
 import userModel from "../models/user.js";
 import {returnError} from"../utilis/returnError.js";
 import createHttpError from "http-errors";
-// import { dbOperation } from "../utilis/advanceFunctions.js";
-import { returnResponse } from "../utilis/returnResponse.js";
-import { doesUserExist } from "./formController.js";
 
 export const profileDetails = async (req, res, next) => {
   const { userId } = req.query;
@@ -153,11 +150,9 @@ export const onBoarding= async (req, res, next) => {
     return next(createHttpError(400, "Form data is required"));
   }
   const {city, contactNumber, address, preferences, gender} = formData;
-  const userId = req.userId;
   let user;
   try {
     user  = await userModel.create({
-      _id: userId,
       city,
       contactNumber,
       address,
@@ -173,13 +168,3 @@ export const onBoarding= async (req, res, next) => {
   });
 }
 
-
-export const doesUserExists = async (req,res,next) => {
-      const id = req.userId;
-      const gmail = req.gmail;
-      const userExist = await doesUserExist(id,next);
-      if(!userExist.success){
-        return returnResponse("User doesn't exist", res, 203, {gmail});
-      }       
-      return returnResponse("User exist" ,res, 200, {gmail}); 
-}
