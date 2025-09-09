@@ -1,17 +1,17 @@
 import User from "../models/user.js";
 import createHttpError from "http-errors";
 
-const userId = async (userId, next) => {
+const findUserById = async (userId, next) => {
     if (!userId) {
         const err = createHttpError(400, "Email is missing");
         err.additionalFields = { success: false }
         return next(err)
     }
     // const regex = new RegExp(emailId, 'i'); // Case-insensitive regular expression
-    const userDetails = await User.findOne({ userId });
+    const userDetails = await User.findById(userId);
     return userDetails;
 };
 
 
-export default userId;
+export default findUserById;
 
