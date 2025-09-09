@@ -1,6 +1,6 @@
 import  express from 'express';
 const router = express.Router();
-import {bookDetails, deleteBook, updateBook, fetchAllUserOrders} from "../controllers/adminControllers.js";
+import {bookDetails, deleteBook, updateBook, fetchAllUserOrders} from "./adminControllers.js";
 
 
 router.post("/create", bookDetails );
