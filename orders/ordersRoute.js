@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { fetchOrders, placeOrder, cancelOrder, fetchSpecificOrderDetails } from "../controllers/ordersController.js";
+import { fetchOrders, placeOrder, cancelOrder, fetchSpecificOrderDetails } from "../orders/ordersController.js";
 
 router.get("/fetch", fetchOrders);
 router.post("/placeOrder", placeOrder);
