@@ -1,9 +1,9 @@
-import bookModel from "../models/bookInfo.js";
+import bookModel from "./bookInfo.js";
 // import  {getCachedData, setCacheData} from "../utilis/fetchDataFromRedis.js";
 import createHttpError from "http-errors";
 
 //Function to fetch book details from database
-export const fetchBooks = async function (req, res,next) {
+export const fetchBooks = async function (req, res, next) {
   try {
     // const key = "allBooks";
     // const cachedData = await getCachedData(key);
@@ -14,15 +14,15 @@ export const fetchBooks = async function (req, res,next) {
     //     message : "Book details fetched successfully",
     //   })
     // }
-      const books = await bookModel.find(); 
-      // await setCacheData(key, books);
-      res.status(200).json({
-        data : books,
-        success : true,
-        message : "Book details fetched successfully"
-      });
+    const books = await bookModel.find();
+    // await setCacheData(key, books);
+    res.status(200).json({
+      data: books,
+      success: true,
+      message: "Book details fetched successfully"
+    });
   } catch (error) {
-    console.log("Failed to fetch books data",error);
+    console.log("Failed to fetch books data", error);
     next(createHttpError(500, "Failed to fetch books data"))
   }
 };
@@ -50,32 +50,32 @@ export const fetchBook = async function (req, res, next) {
     //   })
     // }
     // else{
-      const regex = new RegExp(bookName, 'i'); // Case-insensitive regular expression
-      const book = await bookModel.find({
-        $text: {
-          $search: `${regex}`
-        }
-      });
-      if (book.length == 0) {
-        const err = new Error("Book you're trying to search isn't available");
-        err.statusCode = 200;
-        err.additonalFields = {
-          success : false,
-          found: false
-        }
-        return next(err);
+    const regex = new RegExp(bookName, 'i'); // Case-insensitive regular expression
+    const book = await bookModel.find({
+      $text: {
+        $search: `${regex}`
       }
-      // await setCacheData(key, book);
-      res.status(200).json({
-        message: "Book details fetched",
-        data: book,
-        numberOfResult : book.length,
-        success: true,
-        found: true
-      });
+    });
+    if (book.length == 0) {
+      const err = new Error("Book you're trying to search isn't available");
+      err.statusCode = 200;
+      err.additonalFields = {
+        success: false,
+        found: false
+      }
+      return next(err);
+    }
+    // await setCacheData(key, book);
+    res.status(200).json({
+      message: "Book details fetched",
+      data: book,
+      numberOfResult: book.length,
+      success: true,
+      found: true
+    });
     // }
   } catch (error) {
-    console.log(`Error in fetching specific bookDetails`,error.message);
+    console.log(`Error in fetching specific bookDetails`, error.message);
     return next(createHttpError(500, "Internal Server Error"));
   }
 }
@@ -93,14 +93,14 @@ export const fetchRecommendedBooks = async (req, res, next) => {
     //   })
     // }
     // else{
-      const bookArray = ["Rich Dad Poor Dad","Zero to One", "Pyschology of Money", "The Power of Your Subconcious Mind", "How Business Storytelling Works", "Atomic Habits", "Building a Second Brain"];
-      const recommendedBookDetails = await bookModel.find({ title: { $in: bookArray } });
-      // await setCacheData(key, recommendedBookDetails);
-      return res.status(200).json({
-        message: "Recommended Books fetched successfully",
-        data: recommendedBookDetails,
-        success: true
-      })
+    const bookArray = ["Rich Dad Poor Dad", "Zero to One", "Pyschology of Money", "The Power of Your Subconcious Mind", "How Business Storytelling Works", "Atomic Habits", "Building a Second Brain"];
+    const recommendedBookDetails = await bookModel.find({ title: { $in: bookArray } });
+    // await setCacheData(key, recommendedBookDetails);
+    return res.status(200).json({
+      message: "Recommended Books fetched successfully",
+      data: recommendedBookDetails,
+      success: true
+    })
     // }
   } catch (error) {
     console.error("Error in fetching recommended books details", error.message);
