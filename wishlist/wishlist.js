@@ -1,6 +1,8 @@
-const mongoose from'mongoose');
+import pkg from 'mongoose';
+const {Schema, model,  models} = pkg;
 
-const wishlistSchema = new mongoose.Schema({
+
+const wishlistSchema = new Schema({
   bookName: {
     type: String,
     required: true,
@@ -38,7 +40,7 @@ wishlistSchema.pre('save', function (next) {
 
 
 // Check if the model is already compiled
-const wishlistModel = mongoose.models.Wishlist || mongoose.model('Wishlist', wishlistSchema);
+const wishlistModel = models.Wishlist || model('Wishlist', wishlistSchema);
 
-module.exports = wishlistModel;
+export default  wishlistModel;
 
