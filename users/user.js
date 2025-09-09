@@ -3,10 +3,6 @@ const {Schema, model,  models} = pkg;
 
 // Define the UserSchema
 const UserSchema = new Schema({
-    userId: { 
-        type: String, 
-        required: true
-    },
     city : {
         type: String, 
         required: true

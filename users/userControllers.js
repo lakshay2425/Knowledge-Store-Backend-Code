@@ -1,21 +1,24 @@
 import orders from "../models/order.js";
 import testimonalModel from "../models/testimonial.js";
 import bookReviewModel from "../models/review.js";
-import userModel from "../models/user.js";
-import {returnError} from"../utilis/returnError.js";
+import userModel from "../users/user.js";
+import { returnError } from "../utilis/returnError.js";
 import createHttpError from "http-errors";
+// import { dbOperation } from "../utilis/advanceFunctions.js";
+import { returnResponse } from "../utilis/returnResponse.js";
+import { doesUserExist } from "../form/formController.js";
 
 export const profileDetails = async (req, res, next) => {
   const { userId } = req.query;
-  if (!userId){
+  if (!userId) {
     return returnError(400, "Email is required", next);
   }
   try {
     const userDetails = await userModel.findOne({ userId });
-  return res.status(200).json({
-    message: "User Profile Details fetched successfully",
-    userDetails
-  })
+    return res.status(200).json({
+      message: "User Profile Details fetched successfully",
+      userDetails
+    })
   } catch (error) {
     console.error(error.message, "Internal Error in fetching user profile details");
     returnError(500, "Internal Error in fetching user profile details", next);
@@ -105,10 +108,10 @@ export const fetchReveiw = async (req, res, next) => {
   }
 }
 
-export const deleteUserAccount = async (req, res,next) => {
+export const deleteUserAccount = async (req, res, next) => {
   try {
     const { username } = req.query;
-    if(!username){
+    if (!username) {
       return returnError(400, "Required field is missing", next)
     }
     await userModel.findOne({ username });
@@ -119,11 +122,11 @@ export const deleteUserAccount = async (req, res,next) => {
         message: "Account deleted successfully",
         success: true
       })
-    }   
+    }
     return res.status(409).json({
-        message: "Account cannot be deleted becuase you have incoming or delivered orders",
-        success: false
-      })
+      message: "Account cannot be deleted becuase you have incoming or delivered orders",
+      success: false
+    })
   } catch (error) {
     console.log(error.message, "Internal Error in deleting user account");
     returnError(500, "Internal Error in deleting user account", next);
@@ -131,7 +134,7 @@ export const deleteUserAccount = async (req, res,next) => {
 }
 
 
-export const fetchUserDetails = async (req, res,next) => {
+export const fetchUserDetails = async (req, res, next) => {
   try {
     const userDetail = await userModel.find();
     return res.status(200).json({
@@ -144,20 +147,23 @@ export const fetchUserDetails = async (req, res,next) => {
   }
 }
 
-export const onBoarding= async (req, res, next) => {
-  const { formData} = req.body;
-  if(!formData){
+export const onBoarding = async (req, res, next) => {
+  const { formData } = req.body;
+  if (!formData) {
     return next(createHttpError(400, "Form data is required"));
   }
-  const {city, contactNumber, address, preferences, gender} = formData;
+  const { city, contactNumber, address, preferences, gender } = formData;
+  const userId = req.userId;
   let user;
   try {
-    user  = await userModel.create({
+    user = await userModel.create({
+      _id: userId,
       city,
       contactNumber,
       address,
       gender,
-      preferences})
+      preferences
+    })
   } catch (error) {
     console.error(error.message, "Internal Error in onboarding user");
     return next(createHttpError(500, "Internal Error in onboarding user"));
@@ -168,3 +174,13 @@ export const onBoarding= async (req, res, next) => {
   });
 }
 
+
+export const doesUserExists = async (req, res, next) => {
+  const id = req.userId;
+  const gmail = req.gmail;
+  const userExist = await doesUserExist(id, next);
+  if (!userExist.success) {
+    return returnResponse("User doesn't exist", res, 203, { gmail });
+  }
+  return returnResponse("User exist", res, 200, { gmail });
+}
