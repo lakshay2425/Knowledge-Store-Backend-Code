@@ -1,5 +1,5 @@
-import  wishlist from"../models/wishlist.js";
-import  cart from"../models/cart.js";
+import wishlist from "../wishlist/wishlist.js";
+import cart from "../cart/cart.js";
 import createHttpError from "http-errors";
 
 export const deleteAllProducts = async (email, type) => {
@@ -21,10 +21,16 @@ export const deleteBook = async (bookName, email, type, res, next) => {
     const regexEmail = new RegExp(email, 'i'); // Case-insensitive regular expression
     const regexBook = new RegExp(bookName, 'i'); // Case-insensitive regular expression
     if (type === "Wishlist") {
-      await wishlist.findOneAndDelete({ $and: [{ bookName: regexBook }, { email: regexEmail }] });
+      const response = await wishlist.findOneAndDelete({ $and: [{ bookName: regexBook }, { email: regexEmail }] });
+      if (!response) {
+        return next(createHttpError(404, "The book you're trying to delete doesn't exist"))
+      }
       return res.status(200).json({ message: "Book Deleted Successfully", bookName, success: true });
     } else if (type === "Cart") {
-      await cart.findOneAndDelete({ $and: [{ bookName: regexBook }, { email: regexEmail }] });
+      const response = await cart.findOneAndDelete({ $and: [{ bookName: regexBook }, { email: regexEmail }] });
+      if (!response) {
+        return next(createHttpError(404, "The book you're trying to delete doesn't exist"))
+      }
       return res.status(200).json({ message: "Book Deleted Successfully", bookName, success: true });
     }
   } catch (error) {

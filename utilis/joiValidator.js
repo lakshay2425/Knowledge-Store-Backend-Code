@@ -13,4 +13,4 @@ const itemSchema = Joi.object({
 });
 
 
-module.exports = itemSchema;
+export default itemSchema;

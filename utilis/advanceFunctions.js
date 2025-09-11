@@ -6,11 +6,19 @@ export const asyncHandler = (fn) => {
 
 
 //Database operation wrapper
-export const dbOperation = async (operation, errorMessage) => {
+export const dbOperation = async (operation, errorMessage, session=null) => {
     try {
         return await operation();
     } catch (error) {
         console.error(`DB Error: ${errorMessage}`, error.message);
+         if (session && session.inTransaction()) {
+            try {
+                await session.abortTransaction();
+                console.log('Transaction aborted due to error');
+            } catch (abortError) {
+                console.error('Transaction abort failed:', abortError.message);
+            }
+        }
         throw createError(errorMessage, 500);
     }
 };
