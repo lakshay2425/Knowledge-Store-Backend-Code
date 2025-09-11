@@ -2,6 +2,14 @@
 import { createClient } from "redis";
 import { config } from "./config.js";
 
+// --- START OF DEBUG CODE ---
+const redisUrlForDebug = config.get("REDIS_URL");
+console.log("---");
+console.log("Attempting to connect to Redis with URL:", redisUrlForDebug);
+console.log("---");
+// --- END OF DEBUG CODE ---
+
+
 export const redisClient = createClient({
   url: config.get("REDIS_URL"),
   socket: {

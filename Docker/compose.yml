@@ -1,7 +1,7 @@
 services:
   frontend:
     image: lakshay2212/applications:knowledgestore-frontend-v1
-    container_name: frontend-prod
+    container_name: frontend
     environment:
       - VITE_BACKEND_URL=${VITE_BACKEND_URL:?}
       - VITE_FRONTEND_URL=${VITE_FRONTEND_URL:?}
@@ -32,7 +32,7 @@ services:
     
   backend:
     image: lakshay2212/applications:knowledgestore-backend-v1
-    container_name: KS-backend-prod
+    container_name: backend
     networks:
       - KS-prod
     environment:
@@ -44,8 +44,8 @@ services:
       - MONGO_URI=${MONGO_URI:?}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - RAZORPAY_PRODUCTION_KEY_ID=${RAZORPAY_PRODUCTION_KEY_ID}
-      - RAZORPAY_PRODUCTION_SECRET=${RAZORPAY_PRODUCTION_SECRET}
+      - RAZORPAY_TEST_KEY_ID=${RAZORPAY_TEST_KEY_ID}
+      - RAZORPAY_TEST_SECRET=${RAZORPAY_PRODUCTION_SECRET}
       - AUTH_URL=${AUTH_URL}
       - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
     restart: unless-stopped
@@ -77,7 +77,7 @@ services:
 
   redis:
     image: redis:7-alpine  
-    container_name: ks-redis-prod
+    container_name: ks-redis
     volumes:
       - redis_data:/data 
     networks:
@@ -105,7 +105,7 @@ services:
   # Caddy reverse proxy with automatic HTTPS
   caddy:
     image: caddy:2-alpine
-    container_name: ks-caddy-prod
+    container_name: ks-caddy
     ports:
       - "80:80"
       - "443:443"
