@@ -19,8 +19,7 @@ app.set('trust proxy', 1); // or 1, or 'multiple'
 
 
 
-const frontendURLs = [config.get("LOCALHOST_FRONTEND_URL"), config.get("PRODUCTION_FRONTEND_URL")];
-const allowedOrigins = frontendURLs;
+const allowedOrigins = [config.get("LOCALHOST_FRONTEND_URL"), config.get("PRODUCTION_FRONTEND_URL")];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -32,7 +31,8 @@ app.use(cors({
     return callback(null, true);
   },
   credentials: true, // Allow cookies to be sent and received,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  methods: ['GET', 'POST', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'withCredentials', 'X-Requested-With','Accept'],
 }));
 
 // Use Helmet for security headers
