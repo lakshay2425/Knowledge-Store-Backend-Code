@@ -5,7 +5,7 @@ import logger from 'morgan';
 import cors from 'cors';
 import MongoDB from "./config/mongoose.js";
 import helmet from 'helmet';
-import {connectRedis} from "./config/redis.js"
+// import {connectRedis} from "./config/redis.js"
 import {globalErrorHandler} from "./middlewares/globalErrorHandler.js"
 import {config}  from "./config/config.js";
 import indexRoute from "./routes/indexRoute.js";
@@ -61,16 +61,17 @@ app.get("/health", (req,res)=> {
 
 app.use(globalErrorHandler);
 
-// app.listen(config.get("PORT"), () => {
-  // });
+app.listen(config.get("PORT"), () => {
+      console.log("🚀 Server running on port 3000");
+  });
   
-  (async () => {
-    try {
-    console.log("🚀 Server running on port 3000");
-    await connectRedis(); // ensure connection first
-  } catch (err) {
-    console.error("❌ Could not connect to Redis", err);
-    process.exit(1); // Exit if Redis fails to connect
-  }
-})();
+//   (async () => {
+//     try {
+//     console.log("🚀 Server running on port 3000");
+//     await connectRedis(); // ensure connection first
+//   } catch (err) {
+//     console.error("❌ Could not connect to Redis", err);
+//     process.exit(1); // Exit if Redis fails to connect
+//   }
+// })();
 
