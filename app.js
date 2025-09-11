@@ -19,7 +19,6 @@ app.set('trust proxy', 1); // or 1, or 'multiple'
 
 
 
-
 const frontendURLs = [config.get("LOCALHOST_FRONTEND_URL"), config.get("PRODUCTION_FRONTEND_URL")];
 const allowedOrigins = frontendURLs;
 
@@ -63,11 +62,11 @@ app.get("/health", (req,res)=> {
 app.use(globalErrorHandler);
 
 // app.listen(config.get("PORT"), () => {
-//   console.log("🚀 Server running on port 3000");
-// });
-
-(async () => {
-  try {
+  // });
+  
+  (async () => {
+    try {
+    console.log("🚀 Server running on port 3000");
     await connectRedis(); // ensure connection first
   } catch (err) {
     console.error("❌ Could not connect to Redis", err);
@@ -75,4 +74,3 @@ app.use(globalErrorHandler);
   }
 })();
 
-// module.exports = app;

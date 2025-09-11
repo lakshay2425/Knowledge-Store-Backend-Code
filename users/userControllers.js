@@ -12,156 +12,156 @@ import jwt from 'jsonwebtoken'
 import { asyncHandler, dbOperation, serviceOperation } from "../utilis/advanceFunctions.js";
 import { validateMissingFields } from "../utilis/validateMissingFields.js";
 
-export const profileDetails =  asyncHandler(async (req, res) => {
-  const userId  = req.userId;
-    
+export const profileDetails = asyncHandler(async (req, res) => {
+  const userId = req.userId;
+
   const userDetails = await dbOperation(
-      ()=> userModel.findById(userId),
-      `Failed to find user profile details with userId ${userId}`
-    );
-    
-    return res.status(200).json({
-      message: "User Profile Details fetched successfully",
-      userDetails
-    })
+    () => userModel.findById(userId),
+    `Failed to find user profile details with userId ${userId}`
+  );
+
+  return res.status(200).json({
+    message: "User Profile Details fetched successfully",
+    userDetails
+  })
 })
 
 
 export const bookReview = asyncHandler(async (req, res, next) => {
-    const { bookName, stars, username, description } = req.body;
-    const fieldMissing = validateMissingFields({ bookName, stars, username, description });
-    if (fieldMissing) {
-      return returnError(400, "Required fields are missing", next);
-    }
+  const { bookName, stars, username, description } = req.body;
+  const fieldMissing = validateMissingFields({ bookName, stars, username, description });
+  if (fieldMissing) {
+    return returnError(400, "Required fields are missing", next);
+  }
 
-    await dbOperation(
-      ()=> bookReviewModel.create({
+  await dbOperation(
+    () => bookReviewModel.create({
       username,
       bookName,
       stars,
       description
     }), `Failed to create book review for ${bookName} by ${username}`
-    )
-    res.status(200).json({
-      message: "Reveiw added successfully",
-      success: true
-    })
-  
+  )
+  res.status(200).json({
+    message: "Reveiw added successfully",
+    success: true
+  })
+
 })
 
 export const userTestimonial = asyncHandler(async (req, res, next) => {
-    const { username, testimonial } = req.body;
+  const { username, testimonial } = req.body;
 
-    const fieldMissing = validateMissingFields({ username, testimonial })
-    if (fieldMissing) {
-      return returnError(400, "Required fields are missing", next)
-    }
+  const fieldMissing = validateMissingFields({ username, testimonial })
+  if (fieldMissing) {
+    return returnError(400, "Required fields are missing", next)
+  }
 
-    await dbOperation(
-      ()=> testimonalModel.create({
+  await dbOperation(
+    () => testimonalModel.create({
       username,
       testimonial
     }), `Failed to create user testimonial ${username}`
-    );
-    res.status(200).json({
-      message: "Testimonials added successfully",
-      success: true
-    })
+  );
+  res.status(200).json({
+    message: "Testimonials added successfully",
+    success: true
+  })
 })
 
 export const fetchUserTestimonial = asyncHandler(async (req, res) => {
 
   const allUserTestimonial = await dbOperation(
-      ()=> testimonalModel.find(),
-      "Failed to fetch user testimonails"
-    );
-    return res.status(200).json({
-      message: "All testimonials fetched",
-      success: true,
-      data: allUserTestimonial
-    })
+    () => testimonalModel.find(),
+    "Failed to fetch user testimonails"
+  );
+  return res.status(200).json({
+    message: "All testimonials fetched",
+    success: true,
+    data: allUserTestimonial
+  })
 })
 
 export const fetchReveiw = asyncHandler(async (req, res, next) => {
-    const { bookName } = req.params;
-    if (!bookName) {
-      return returnError(400, "Required fields are missing", next)
-    }
-    
-    const bookReviews = await dbOperation(
-      ()=> bookReviewModel.find({ bookName }),
-      `Failed to fetch book reviews for ${bookName}`
-    );
+  const { bookName } = req.params;
+  if (!bookName) {
+    return returnError(400, "Required fields are missing", next)
+  }
 
-    if (bookReviews.length == 0) {
-      return res.status(200).json({
-        success: true,
-        message: "No reviews found for this book",
-        reviews: 0
-      })
-    }
+  const bookReviews = await dbOperation(
+    () => bookReviewModel.find({ bookName }),
+    `Failed to fetch book reviews for ${bookName}`
+  );
 
+  if (bookReviews.length == 0) {
     return res.status(200).json({
-      message: "Fetched reviews successfully",
-      reviewData: bookReviews,
-      reviews: bookReviews.length
+      success: true,
+      message: "No reviews found for this book",
+      reviews: 0
     })
-  
+  }
+
+  return res.status(200).json({
+    message: "Fetched reviews successfully",
+    reviewData: bookReviews,
+    reviews: bookReviews.length
+  })
+
 })
 
 export const deleteUserAccount = asyncHandler(async (req, res) => {
-    const userId  = req.userId;
+  const userId = req.userId;
 
-    const orderDetails = await dbOperation(
-      ()=> orders.find({ $and: [{ _id: userId }, { status: { $in: ["ordered", "delievered"] } }] }),
-      `Failed to fetch orders for user with userId ${userId}`
-    );
+  const orderDetails = await dbOperation(
+    () => orders.find({ $and: [{ _id: userId }, { status: { $in: ["ordered", "delievered"] } }] }),
+    `Failed to fetch orders for user with userId ${userId}`
+  );
 
-    if (!(orderDetails.length > 0)) {
-      const response = await userModel.findByIdAndDelete(userId);
-      if(response){
-        return res.status(200).json({
-          message: "Account deleted successfully",
-          success: true
-        })
-      }
+  if (!(orderDetails.length > 0)) {
+    const response = await userModel.findByIdAndDelete(userId);
+    if (response) {
+      return res.status(200).json({
+        message: "Account deleted successfully",
+        success: true
+      })
     }
-    return res.status(409).json({
-      message: "Account cannot be deleted becuase you have incoming or delivered orders",
-      success: false
-    })
+  }
+  return res.status(409).json({
+    message: "Account cannot be deleted becuase you have incoming or delivered orders",
+    success: false
+  })
 })
 
 
 export const fetchUserDetails = asyncHandler(async (req, res) => {
-    const userDetail = await dbOperation(()=> userModel.find(), "Failed to find user details");
-    return res.status(200).json({
-      message: "User details fetched successfully",
-      userDetails: userDetail
-    });
-  
+  const userDetail = await dbOperation(() => userModel.find(), "Failed to find user details");
+  return res.status(200).json({
+    message: "User details fetched successfully",
+    userDetails: userDetail
+  });
+
 })
 
 export const onBoarding = asyncHandler(async (req, res, next) => {
   const { formData } = req.body;
   const { city, contactNumber, address, preferences, gender } = formData;
   const fieldMissing = validateMissingFields({ city, contactNumber, address, preferences, gender });
-  
+
   if (fieldMissing) {
     return next(createHttpError(400, "Form data is required"));
   }
 
   const userId = req.userId;
-  
-    const user = await dbOperation(()=> userModel.create({
-      _id: userId,
-      city,
-      contactNumber,
-      address,
-      gender,
-      preferences
-    }), `Failed to create user account for Knowledge Store ${userId}`)
-  
+
+  const user = await dbOperation(() => userModel.create({
+    _id: userId,
+    city,
+    contactNumber,
+    address,
+    gender,
+    preferences
+  }), `Failed to create user account for Knowledge Store ${userId}`)
+
   return res.status(201).json({
     message: "User onboarded successfully",
     userId: user._id,
@@ -179,8 +179,9 @@ export const doesUserExists = async (req, res, next) => {
       return returnResponse("You're not authenticated", res, 200, { userInfo: null });
     }
     const publicKey = config.get("JWT_PUBLIC_KEY");
+    const decodedPublicKey = Buffer.from(publicKey, 'base64').toString('utf8');
     const decoded = await serviceOperation(
-      () => jwt.verify(token, publicKey),
+      () => jwt.verify(token, decodedPublicKey),
       "Failed to verify and decode the token"
     );
     id = decoded.sub;

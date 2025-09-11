@@ -12,8 +12,9 @@ export const authenticateUser = async (req, res, next) => {
             return returnResponse("You're not authenticated", res, 401, { userInfo: null });
         }
         const publicKey = config.get("JWT_PUBLIC_KEY");
+        const decodedPublicKey = Buffer.from(publicKey, 'base64').toString('utf8');
         const decoded = await serviceOperation(
-            () => jwt.verify(token, publicKey),
+            () => jwt.verify(token, decodedPublicKey),
             "Failed to verify and decode the token"
         );
         req.userId = decoded.sub;
