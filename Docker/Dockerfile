@@ -1,22 +1,30 @@
-FROM node:24-alpine
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY ../package*.json ./
 
 RUN npm ci --ignore-scripts
 
-COPY  . . 
-
 RUN npm prune --omit-dev
 
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+COPY ../ .
+
+FROM node:24-alpine AS final
+
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+
+COPY --from=builder /app ./
+
+RUN addgroup -S appgroup && adduser -S -G appgroup -h /home/appuser appuser
+
 
 RUN chown -R appuser:appgroup /app
 
-USER app
+USER appuser
 
-EXPOSE 3000
+EXPOSE 5000
 
-CMD ["node", "app.js"]
-
+CMD ["npm", "run", "build"]
