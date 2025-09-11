@@ -1,10 +1,10 @@
+import { asyncHandler, dbOperation } from "../utilis/advanceFunctions.js";
 import bookModel from "./bookInfo.js";
 // import  {getCachedData, setCacheData} from "../utilis/fetchDataFromRedis.js";
 import createHttpError from "http-errors";
 
 //Function to fetch book details from database
-export const fetchBooks = async function (req, res, next) {
-  try {
+export const fetchBooks = asyncHandler(async function (req, res) {
     // const key = "allBooks";
     // const cachedData = await getCachedData(key);
     // if(cachedData){
@@ -14,26 +14,21 @@ export const fetchBooks = async function (req, res, next) {
     //     message : "Book details fetched successfully",
     //   })
     // }
-    const books = await bookModel.find();
+    const books = await dbOperation(
+      ()=> bookModel.find(),
+      "Failed to fetch books"
+    );
     // await setCacheData(key, books);
     res.status(200).json({
       data: books,
       success: true,
       message: "Book details fetched successfully"
     });
-  } catch (error) {
-    console.log("Failed to fetch books data", error);
-    next(createHttpError(500, "Failed to fetch books data"))
-  }
-};
+});
 
 
 //Function to fetch specific book details 
-export const fetchBook = async function (req, res, next) {
-  try {
-    // const userEmail = req.userEmail;
-    // const userId = req.userId;
-    // console.log(userEmail, userId, "User Email and User Id in fetchBook");
+export const fetchBook = asyncHandler(async function (req, res, next) {
     const { bookName } = req.params;
     if (!bookName) {
       return next(createHttpError(400, "Book Name is missing"))
@@ -51,11 +46,14 @@ export const fetchBook = async function (req, res, next) {
     // }
     // else{
     const regex = new RegExp(bookName, 'i'); // Case-insensitive regular expression
-    const book = await bookModel.find({
+    const book = await dbOperation(
+      ()=> bookModel.find({
       $text: {
         $search: `${regex}`
       }
-    });
+    }),
+    `Failed to find book info ${bookName}`
+    );
     if (book.length == 0) {
       const err = new Error("Book you're trying to search isn't available");
       err.statusCode = 200;
@@ -74,15 +72,10 @@ export const fetchBook = async function (req, res, next) {
       found: true
     });
     // }
-  } catch (error) {
-    console.log(`Error in fetching specific bookDetails`, error.message);
-    return next(createHttpError(500, "Internal Server Error"));
-  }
-}
+})
 
 
-export const fetchRecommendedBooks = async (req, res, next) => {
-  try {
+export const fetchRecommendedBooks = asyncHandler(async (req, res) => {
     // const key = "recommendedBooks";
     // const cachedData = await getCachedData(key);
     // if(cachedData){
@@ -94,7 +87,10 @@ export const fetchRecommendedBooks = async (req, res, next) => {
     // }
     // else{
     const bookArray = ["Rich Dad Poor Dad", "Zero to One", "Pyschology of Money", "The Power of Your Subconcious Mind", "How Business Storytelling Works", "Atomic Habits", "Building a Second Brain"];
-    const recommendedBookDetails = await bookModel.find({ title: { $in: bookArray } });
+    const recommendedBookDetails = await dbOperation(
+      ()=> bookModel.find({ title: { $in: bookArray } }),
+      "Failed to fetch recommended books"
+    );
     // await setCacheData(key, recommendedBookDetails);
     return res.status(200).json({
       message: "Recommended Books fetched successfully",
@@ -102,8 +98,4 @@ export const fetchRecommendedBooks = async (req, res, next) => {
       success: true
     })
     // }
-  } catch (error) {
-    console.error("Error in fetching recommended books details", error.message);
-    next(createHttpError(500, "Internal Server Error"));
-  }
-}
+})

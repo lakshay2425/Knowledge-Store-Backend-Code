@@ -3,7 +3,8 @@ import itemSchema from "../utilis/joiValidator.js";
 import { deleteAllProducts, deleteBook } from "../utilis/deleteAll.js";
 import wishlistModel from "../wishlist/wishlist.js";
 import createHttpError from "http-errors";
-import { asyncHandler } from "../utilis/advanceFunctions.js";
+import { asyncHandler, dbOperation } from "../utilis/advanceFunctions.js";
+import { validateMissingFields } from "../utilis/validateMissingFields.js";
 
 const validateInput = (bookName, email) => {
   const { error, value } = itemSchema.validate({ bookName, email });
@@ -83,13 +84,12 @@ export const updateCart = async (req, res, next) => {
 
 //Function to add a book to user cart section
 export const addToCart = asyncHandler(async (req, res, next) => {
-  // try {
   const email = req.gmail;
-  const { rentalPeriod, bookName } = req.body; // assuming you have user data available in req.user
-  console.log(req.body, "Request Body Object")
-  if (!bookName || !rentalPeriod) {
-    console.log(bookName, rentalPeriod);
-    console.log("Missing required fields bookName or rentalPeriod")
+  const { rentalPeriod, bookName } = req.body; 
+
+  const fieldMissing = validateMissingFields({rentalPeriod, bookName})
+
+  if (fieldMissing) {
     return next(createHttpError(400, "Missing required fields"))
   };
 
@@ -108,15 +108,10 @@ export const addToCart = asyncHandler(async (req, res, next) => {
     success: true,
     exist: false
   })
-  // } catch (error) {
-  //   console.log("Failed to add book to cart", error.message);
-  //   return next(createHttpError(500, "Internal Server Error"));
-  // }
 });
 
 //Function to fetch  book details from user cart section
 export const fetchCartData = asyncHandler(async (req, res) => {
-  // try {
   const email = req.gmail;
 
   const userCartWithBookInfo = await cartModel.aggregate([
@@ -146,17 +141,12 @@ export const fetchCartData = asyncHandler(async (req, res) => {
       }
     }
   ]);
+
   return res.status(200).json({
     message: `${userCartWithBookInfo.length > 0 ? "User Cart data fetch successfully" : "No Data in the cart"}`,
     bookDetails: userCartWithBookInfo,
     numberOfBooks: userCartWithBookInfo.length
   });
-  // } catch (error) {
-  //   console.log(error.message, "Failed to fetch user cart data");
-  //   const err = createHttpError(500, "Failed to fetch user cart data")
-  //   err.additonalFields = { success: false };
-  //   next(err);
-  // };
 })
 
 
@@ -173,27 +163,27 @@ export const deleteCartProduct = asyncHandler(async (req, res, next) => {
 
 })
 
-export const moveBookFromWishlisttoCart = async (req, res, next) => {
+export const moveBookFromWishlisttoCart = asyncHandler(async (req, res, next) => {
   const session = await wishlistModel.startSession();
-  try {
     const email = req.gmail;
     const { bookName } = req.body;
 
     if (!bookName) {
       const err = createHttpError(400, "Missing bookName or email parameters")
-      err.additonalFields = { success: false };
       return next(err);
     }
     session.startTransaction();
-    const deleteFromWishlist = await wishlistModel.findOneAndDelete({
+    const deleteFromWishlist = await dbOperation(()=> wishlistModel.findOneAndDelete({
       $and: [
         { bookName },
         { email }
       ]
-    });
+    }), `Failed to fetch book info from wishlist associated with email ${email} and bookName ${bookName}`, session);
+    
     if (!deleteFromWishlist) {
       return next(createHttpError(404, "Book you're trying to move from wishlist to cart doesn't exist in wishlist"))
     }
+
     const result = await addBookToCart(bookName, email, next);
     if (!result.success) {
       if (result.exist) {
@@ -210,26 +200,13 @@ export const moveBookFromWishlisttoCart = async (req, res, next) => {
       success: true,
       exist: false
     })
-  } catch (error) {
-    session.abortTransaction();
-    console.error("Error in moving book from wishlist to cart", error.message)
-    return res.status(500).json({
-      message: error.message,
-      success: false
-    });
-  }
-};
+  
+});
 
 
 export const deleteAllCartProduct = asyncHandler(async (req, res, next) => {
-  // try {
   const email = req.gmail;
-  // if (!email) {
-  //   console.error("Email is missing");
-  //   const err = createHttpError(400, "Email is missing");
-  //   err.additonalFields = { success: false }
-  //   return next(err);
-  // }
+  
   const response = await deleteAllProducts(email, "cart");
   if (response.success === false) {
     return next(createHttpError(500, "Failed to remove all books from your cart"))
@@ -238,10 +215,4 @@ export const deleteAllCartProduct = asyncHandler(async (req, res, next) => {
     message: "All cart products deleted successfully",
     success: true
   })
-  // } catch (error) {
-  //   console.log("Error ind deleting all cart product", error.message);
-  //   const err = createHttpError(500, "Internal Server Error");
-  //   err.additonalFields = { success: false };
-  //   next(err);
-  // }
 })

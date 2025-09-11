@@ -3,15 +3,14 @@ import userModel from "../users/user.js";
 import bookModel from "../book/bookInfo.js";
 import createHttpError from "http-errors";
 import { returnError } from "../utilis/returnError.js";
+import { asyncHandler, dbOperation } from "../utilis/advanceFunctions.js";
 
-export const fetchOrders = async (req, res, next) => {
-  try {
-    const { userId } = req.query;
-    if (!userId) {
-      return returnError(400, "Required field is missing", next);
-    }
-    const userOrderDetails = await orders.find({ userId });
+export const fetchOrders = asyncHandler(async (req, res) => {
+    const userId  = req.userId;
+    const userOrderDetails = await dbOperation(()=> orders.find({ userId }), `Failed to fetch orders associated with userId ${userId}`);
+    
     let number = 0;
+    
     if (userOrderDetails.length > 0) {
       number = userOrderDetails.length;
     }
@@ -20,11 +19,7 @@ export const fetchOrders = async (req, res, next) => {
       orderDetails: userOrderDetails,
       orders: number
     })
-  } catch (error) {
-    console.log(error.message, "Internal Error in fetching user's order");
-    returnError(500, "Internal Error in fetching user's order", next);
-  }
-};
+});
 
 
 async function placeBookOrder(email, bookName, numberOfDays, next) {
@@ -135,13 +130,14 @@ export const cancelOrder = async (req, res, next) => {
   }
 }
 
-export const fetchSpecificOrderDetails = async (req, res, next) => {
-  try {
+export const fetchSpecificOrderDetails = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     if (!id) {
       return returnError(400, "Required field is missing", next)
     }
-    const orderDetails = await orders.find({ _id: id });
+
+    const orderDetails = await dbOperation(()=> orders.find({ _id: id }), `Failed to fetch order details of id ${id}`);
+    
     if (!orderDetails) {
       return returnError(400, "No order with this id exist", next)
     } else {
@@ -151,8 +147,4 @@ export const fetchSpecificOrderDetails = async (req, res, next) => {
         success: true
       })
     }
-  } catch (error) {
-    console.log("Internal Error in fetching specific order details", error.message);
-    returnError(500, "Internal Error in fetching specific order details", next);
-  }
-}  
+}) 

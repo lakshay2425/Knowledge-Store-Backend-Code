@@ -7,89 +7,92 @@ import createHttpError from "http-errors";
 // import { dbOperation } from "../utilis/advanceFunctions.js";
 import { returnResponse } from "../utilis/returnResponse.js";
 import { doesUserExist } from "../form/formController.js";
+import { config } from "../config/config.js";
+import jwt from 'jsonwebtoken'
+import { asyncHandler, dbOperation, serviceOperation } from "../utilis/advanceFunctions.js";
+import { validateMissingFields } from "../utilis/validateMissingFields.js";
 
-export const profileDetails = async (req, res, next) => {
-  const { userId } = req.query;
-  if (!userId) {
-    return returnError(400, "Email is required", next);
-  }
-  try {
-    const userDetails = await userModel.findOne({ userId });
+export const profileDetails =  asyncHandler(async (req, res) => {
+  const userId  = req.userId;
+    
+  const userDetails = await dbOperation(
+      ()=> userModel.findById(userId),
+      `Failed to find user profile details with userId ${userId}`
+    );
+    
     return res.status(200).json({
       message: "User Profile Details fetched successfully",
       userDetails
     })
-  } catch (error) {
-    console.error(error.message, "Internal Error in fetching user profile details");
-    returnError(500, "Internal Error in fetching user profile details", next);
-  }
-}
+})
 
 
-export const bookReview = async (req, res, next) => {
-  try {
+export const bookReview = asyncHandler(async (req, res, next) => {
     const { bookName, stars, username, description } = req.body;
-    if (!bookName || !stars || !username || !description) {
+    const fieldMissing = validateMissingFields({ bookName, stars, username, description });
+    if (fieldMissing) {
       return returnError(400, "Required fields are missing", next);
     }
-    await bookReviewModel.create({
+
+    await dbOperation(
+      ()=> bookReviewModel.create({
       username,
       bookName,
       stars,
       description
-    })
+    }), `Failed to create book review for ${bookName} by ${username}`
+    )
     res.status(200).json({
       message: "Reveiw added successfully",
       success: true
     })
-  } catch (error) {
-    console.log(error.message, "Internal Error in adding book review");
-    returnError(500, "Internal Error in adding book review", next);
-  }
-}
+  
+})
 
-export const userTestimonial = async (req, res, next) => {
-  try {
+export const userTestimonial = asyncHandler(async (req, res, next) => {
     const { username, testimonial } = req.body;
-    if (!username || !testimonial) {
+
+    const fieldMissing = validateMissingFields({ username, testimonial })
+    if (fieldMissing) {
       return returnError(400, "Required fields are missing", next)
     }
-    await testimonalModel.create({
+
+    await dbOperation(
+      ()=> testimonalModel.create({
       username,
       testimonial
-    });
+    }), `Failed to create user testimonial ${username}`
+    );
     res.status(200).json({
       message: "Testimonials added successfully",
       success: true
     })
+})
 
-  } catch (error) {
-    console.log(error.message, "Internal Error in adding user testimonial");
-    returnError(500, "Internal Error in adding user testimonial", next);
-  }
-}
+export const fetchUserTestimonial = asyncHandler(async (req, res) => {
 
-export const fetchUserTestimonial = async (req, res, next) => {
-  try {
-    const allUserTestimonial = await testimonalModel.find();
+  const allUserTestimonial = await dbOperation(
+      ()=> testimonalModel.find(),
+      "Failed to fetch user testimonails"
+    );
     return res.status(200).json({
       message: "All testimonials fetched",
       success: true,
       data: allUserTestimonial
     })
-  } catch (error) {
-    console.log(error.message, "Internal Error in fetching all testimonials");
-    returnError(500, "Internal Error in fetching all testimonials", next);
-  }
-}
+})
 
-export const fetchReveiw = async (req, res, next) => {
-  try {
+export const fetchReveiw = asyncHandler(async (req, res, next) => {
     const { bookName } = req.params;
     if (!bookName) {
       return returnError(400, "Required fields are missing", next)
     }
-    const bookReviews = await bookReviewModel.find({ bookName });
+    
+    const bookReviews = await dbOperation(
+      ()=> bookReviewModel.find({ bookName }),
+      `Failed to fetch book reviews for ${bookName}`
+    );
+
     if (bookReviews.length == 0) {
       return res.status(200).json({
         success: true,
@@ -97,87 +100,103 @@ export const fetchReveiw = async (req, res, next) => {
         reviews: 0
       })
     }
+
     return res.status(200).json({
       message: "Fetched reviews successfully",
       reviewData: bookReviews,
       reviews: bookReviews.length
     })
-  } catch (error) {
-    console.log(error.message, "Internal Error in fetching book review");
-    returnError(500, "Internal Error in fetching book review", next);
-  }
-}
+  
+})
 
-export const deleteUserAccount = async (req, res, next) => {
-  try {
-    const { username } = req.query;
-    if (!username) {
-      return returnError(400, "Required field is missing", next)
-    }
-    await userModel.findOne({ username });
-    const orderDetails = await orders.find({ $and: [{ username }, { status: { $in: ["ordered", "delievered"] } }] });
+export const deleteUserAccount = asyncHandler(async (req, res) => {
+    const userId  = req.userId;
+
+    const orderDetails = await dbOperation(
+      ()=> orders.find({ $and: [{ _id: userId }, { status: { $in: ["ordered", "delievered"] } }] }),
+      `Failed to fetch orders for user with userId ${userId}`
+    );
+
     if (!(orderDetails.length > 0)) {
-      await userModel.deleteOne({ username });
-      return res.status(200).json({
-        message: "Account deleted successfully",
-        success: true
-      })
+      const response = await userModel.findByIdAndDelete(userId);
+      if(response){
+        return res.status(200).json({
+          message: "Account deleted successfully",
+          success: true
+        })
+      }
     }
     return res.status(409).json({
       message: "Account cannot be deleted becuase you have incoming or delivered orders",
       success: false
     })
-  } catch (error) {
-    console.log(error.message, "Internal Error in deleting user account");
-    returnError(500, "Internal Error in deleting user account", next);
-  }
-}
+})
 
 
-export const fetchUserDetails = async (req, res, next) => {
-  try {
-    const userDetail = await userModel.find();
+export const fetchUserDetails = asyncHandler(async (req, res) => {
+    const userDetail = await dbOperation(()=> userModel.find(), "Failed to find user details");
     return res.status(200).json({
       message: "User details fetched successfully",
       userDetails: userDetail
     });
-  } catch (error) {
-    console.log(error.message, "Internal Error in fetching userInfo");
-    returnError(500, "Internal Error in fetching userInfo", next);
-  }
-}
+  
+})
 
-export const onBoarding = async (req, res, next) => {
+export const onBoarding = asyncHandler(async (req, res, next) => {
   const { formData } = req.body;
-  if (!formData) {
+  const { city, contactNumber, address, preferences, gender } = formData;
+  const fieldMissing = validateMissingFields({ city, contactNumber, address, preferences, gender });
+  
+  if (fieldMissing) {
     return next(createHttpError(400, "Form data is required"));
   }
-  const { city, contactNumber, address, preferences, gender } = formData;
+
   const userId = req.userId;
-  let user;
-  try {
-    user = await userModel.create({
+  
+    const user = await dbOperation(()=> userModel.create({
       _id: userId,
       city,
       contactNumber,
       address,
       gender,
       preferences
-    })
-  } catch (error) {
-    console.error(error.message, "Internal Error in onboarding user");
-    return next(createHttpError(500, "Internal Error in onboarding user"));
-  }
+    }), `Failed to create user account for Knowledge Store ${userId}`)
+  
   return res.status(201).json({
     message: "User onboarded successfully",
     userId: user._id,
   });
-}
+})
 
 
 export const doesUserExists = async (req, res, next) => {
-  const id = req.userId;
-  const gmail = req.gmail;
+  let id;
+  let gmail;
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      console.info('No token provided');
+      return returnResponse("You're not authenticated", res, 200, { userInfo: null });
+    }
+    const publicKey = config.get("JWT_PUBLIC_KEY");
+    const decoded = await serviceOperation(
+      () => jwt.verify(token, publicKey),
+      "Failed to verify and decode the token"
+    );
+    id = decoded.sub;
+    gmail = decoded.userInfo.userEmail
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return next(createHttpError(401, "Token has expired, please login again"));
+    }
+    if (error instanceof jwt.JsonWebTokenError) {
+      console.info('Invalid token', error);
+      return next(createHttpError(401, "Invalid token, please login again"));
+    }
+
+    console.info('Auth verification failed', error.message);
+    return next(createHttpError(500, "Internal server error"));
+  }
   const userExist = await doesUserExist(id, next);
   if (!userExist.success) {
     return returnResponse("User doesn't exist", res, 203, { gmail });
