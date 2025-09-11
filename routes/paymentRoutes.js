@@ -1,6 +1,6 @@
-import express from "express" ;
+import express from "express";
 import createHttpError from "http-errors";
-import bookModel from " ../models/bookInfo.js";
+import bookModel from "../book/bookInfo.js";
 import axios from 'axios'
 const router = express.Router();
 
@@ -42,4 +42,4 @@ router.post("/orderId", async (req, res, next) => {
     })
 })
 
-module.exports = router;
+export default router;

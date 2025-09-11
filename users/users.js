@@ -4,12 +4,12 @@ import { deleteUserAccount, profileDetails, userTestimonial, bookReview, fetchUs
 import { authenticateUser } from '../middlewares/authMidlleware.js';
 
 
-router.get("/profile", profileDetails);
+router.get("/profile", authenticateUser,profileDetails);
 router.post("/bookReview", bookReview);
-router.post("/testimonial", userTestimonial);
-router.get("/fetchTestimonial", fetchUserTestimonial);
+router.post("/testimonial/", userTestimonial);
+router.get("/testimonial/", fetchUserTestimonial);
 router.get("/fetchBookReview/:bookName", fetchReveiw);
-router.delete("/deleteAccount", deleteUserAccount);
+router.delete("/", authenticateUser, deleteUserAccount);
 router.get("/fetchUserDetails", fetchUserDetails);
 router.post("/onboarding", authenticateUser, onBoarding);
 router.get('/check', authenticateUser, doesUserExists)
