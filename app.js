@@ -5,7 +5,7 @@ import logger from 'morgan';
 import cors from 'cors';
 import MongoDB from "./config/mongoose.js";
 import helmet from 'helmet';
-// import {connectRedis} from "./config/redis.js"
+import {connectRedis} from "./config/redis.js"
 import {globalErrorHandler} from "./middlewares/globalErrorHandler.js"
 import {config}  from "./config/config.js";
 import indexRoute from "./routes/indexRoute.js";
@@ -15,7 +15,7 @@ const app = express();
 MongoDB();
 
 // Set trust proxy (modify as needed for your environment)
-// app.set('trust proxy', 1); // or 1, or 'multiple'
+app.set('trust proxy', 1); // or 1, or 'multiple'
 
 
 
@@ -55,21 +55,24 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 app.use("/api",indexRoute);
+app.get("/health", (req,res)=> {
+  res.status(200).json({message: "Running"})
+})
 
 
 app.use(globalErrorHandler);
 
-app.listen(config.get("PORT"), () => {
-  console.log("🚀 Server running on port 3000");
-});
+// app.listen(config.get("PORT"), () => {
+//   console.log("🚀 Server running on port 3000");
+// });
 
-// (async () => {
-//   try {
-//     await connectRedis(); // ensure connection first
-//   } catch (err) {
-//     console.error("❌ Could not connect to Redis", err);
-//     process.exit(1); // Exit if Redis fails to connect
-//   }
-// })();
+(async () => {
+  try {
+    await connectRedis(); // ensure connection first
+  } catch (err) {
+    console.error("❌ Could not connect to Redis", err);
+    process.exit(1); // Exit if Redis fails to connect
+  }
+})();
 
 // module.exports = app;

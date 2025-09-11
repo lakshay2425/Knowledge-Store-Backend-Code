@@ -1,6 +1,6 @@
 import { redisClient } from "../config/redis.js";
 
-async function getCachedData(key) {
+export async function getCachedData(key) {
   const cached = await redisClient.get(key);
   if (cached) {
     console.log(key, "Cached data");
@@ -10,7 +10,7 @@ async function getCachedData(key) {
   }
 }
 
-async function setData(key, data) {
+export async function setCacheData(key, data) {
   try {
     console.log(key, "Setting data in Redis");
     const stringifyData = JSON.stringify(data);
@@ -19,6 +19,3 @@ async function setData(key, data) {
     console.error("❌ Redis setData error:", err.message);
   }
 }
-
-export const setCacheData = setData;
-export const getCachedData = getCachedData;

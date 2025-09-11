@@ -1,0 +1,147 @@
+services:
+  frontend:
+    image: lakshay2212/applications:knowledgestore-frontend-v1
+    container_name: frontend-prod
+    environment:
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL:?}
+      - VITE_FRONTEND_URL=${VITE_FRONTEND_URL:?}
+      - VITE_AUTH_URL=${VITE_AUTH_URL:?}
+      - VITE_RAZORPAY_KEY=${VITE_RAZORPAY_KEY:?}
+      - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID:?}
+      - VITE_DEV_MODE=false
+    networks:
+      - KS-prod
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    
+  backend:
+    image: lakshay2212/applications:knowledgestore-backend-v1
+    container_name: KS-backend-prod
+    networks:
+      - KS-prod
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - LOCALHOST_FRONTEND_URL=http://localhost:4000
+      - PRODUCTION_FRONTEND_URL=${PRODUCTION_FRONTEND_URL:?}
+      - PORT=${PORT:?}
+      - NODE_ENV=production
+      - MONGO_URI=${MONGO_URI:?}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - RAZORPAY_PRODUCTION_KEY_ID=${RAZORPAY_PRODUCTION_KEY_ID}
+      - RAZORPAY_PRODUCTION_SECRET=${RAZORPAY_PRODUCTION_SECRET}
+      - AUTH_URL=${AUTH_URL}
+      - JWT_PUBLIC_KEY=${JWT_PUBLIC_KEY}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  redis:
+    image: redis:7-alpine  
+    container_name: ks-redis-prod
+    volumes:
+      - redis_data:/data 
+    networks:
+      - KS-prod
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  # Caddy reverse proxy with automatic HTTPS
+  caddy:
+    image: caddy:2-alpine
+    container_name: ks-caddy-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - KS-prod
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+volumes:
+  redis_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+
+networks:
+  KS-prod:
+    driver: overlay
