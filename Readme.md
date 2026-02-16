@@ -6,83 +6,142 @@
 
 ## Features
 
-- **User Authentication**: Secure signup and login using JWT and bcrypt.
-- **Book Management**: Admins can add, update, and delete books.
-- **Book Search**: Users can search for books by name or genre.
-- **Wishlist & Cart**: Users can add books to their wishlist or cart, move books between them, and remove books.
-- **Order Management**: Place, fetch, and cancel book orders.
-- **Feedback & Suggestions**: Users can submit feedback, contact forms, and book suggestions.
-- **Caching**: Uses Redis for caching frequently accessed data.
-- **Security**: Implements rate limiting, helmet, and attack protection middleware.
+- **User Authentication**: Secure authentication using JWT and bcrypt
+- **Book Management**: Admins can add, update, and delete books
+- **Book Search**: Users can search for books by name or genre
+- **Wishlist & Cart**: Users can add books to their wishlist or cart, move books between them, and remove books
+- **Order Management**: Place, fetch, and cancel book orders
+- **Feedback & Suggestions**: Users can submit feedback, contact forms, and book suggestions
+- **Reviews & Testimonials**: Users can leave book reviews and testimonials
+- **Caching**: Uses Redis for caching frequently accessed data
+- **Security**: Implements rate limiting and Helmet for security headers
+- **Docker Support**: Production-ready Docker configuration with Caddy reverse proxy
 
 ---
 
 ## Technologies Used
 
-- **ExpressJS**: Server framework
+- **Express.js**: Server framework
 - **MongoDB Atlas**: Cloud database
 - **Mongoose**: MongoDB ODM
 - **jsonwebtoken**: User authentication
-- **bcrypt**: Password encryption
+- **bcrypt**: Password hashing
 - **Redis**: Caching layer
-- **Cloudinary**: Book image storage
-- **Nodemailer**: Email service (planned)
 - **Helmet**: Security headers
-- **Arcjet**: Attack and signup protection
+- **Joi**: Request validation
+- **express-rate-limit**: Rate limiting
+- **Docker**: Containerization
+
+---
+
+## Prerequisites
+
+- Node.js 18.x or higher
+- MongoDB Atlas account or local MongoDB instance
+- Redis instance (local or cloud)
+- Docker (optional, for containerized deployment)
 
 ---
 
 ## Project Structure
 
-- **controllers/**: Route handler logic (admin, user, cart, wishlist, orders, forms, etc.)
-- **models/**: Mongoose schemas for all entities (User, Book, Order, Wishlist, etc.)
-- **routes/**: Express route definitions, grouped by feature
-- **middlewares/**: Global error handler, rate limiter, protection middleware
-- **utilis/**: Utility functions (encryption, validation, Redis, etc.)
-- **config/**: Configuration for MongoDB, Redis, and environment variables
+The project follows a feature-based modular architecture:
+
+```
+backend/
+├── admin/          # Admin routes and controllers
+├── book/           # Book info and controllers
+├── cart/           # Cart functionality
+├── form/           # Feedback, contact, and suggestion forms
+├── orders/         # Order management
+├── users/          # User profiles, reviews, testimonials
+├── wishlist/       # Wishlist functionality
+├── models/         # Mongoose schemas
+├── routes/         # Route aggregation and payment routes
+├── middlewares/    # Auth, rate limiter, error handler
+├── utilis/         # Utility functions
+├── config/         # Configuration files
+├── mailTemplates/  # Email templates
+└── Docker/         # Docker configuration
+```
 
 ---
 
-## API Route Categories
+## API Routes
 
-1. **AdminRoutes**: Manage book details (insert, update, delete)
-2. **AuthRoutes**: Signup, login, logout
-3. **FormRoutes**: Handle suggestion, contact, and feedback forms
-4. **IndexRoute**: Fetch all books or specific book details
-5. **UserRoute**: Wishlist, cart, profile, testimonials, reviews, account management
-6. **OrderRoutes**: Place, fetch, and cancel orders
+All routes are prefixed with `/api`
+
+| Route | Description |
+|-------|-------------|
+| `/` | Fetch all books or specific book details |
+| `/admin` | Manage book details (insert, update, delete) |
+| `/user` | User profile, testimonials, reviews, account management |
+| `/wishlist` | Wishlist operations |
+| `/cart` | Cart operations |
+| `/orders` | Place, fetch, and cancel orders |
+| `/forms` | Submit feedback, contact, and suggestion forms |
+| `/payment` | Payment processing |
+| `/health` | Health check endpoint |
 
 ---
 
-## How to Run
+## Getting Started
+
+### Local Development
 
 1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd backend
+   ```
+
 2. **Install dependencies**
    ```bash
    npm install
    ```
+
 3. **Set environment variables**  
-   Create a `.env` file with all required variables (see `config/config.js` for keys).
-4. **Start MongoDB Atlas and Redis**  
-   Ensure your MongoDB Atlas and Redis instances are running and accessible.
-5. **Run the server**
+   Copy `.env.example` to `.env` and fill in the required values:
    ```bash
-   node app.js
+   cp .env.example .env
+   ```
+
+4. **Start the server**
+   ```bash
+   npm run dev
    ```
    The server will run on port `3000` by default.
 
+### Docker Deployment
+
+The project includes Docker configuration for production deployment with Redis and Caddy reverse proxy:
+
+```bash
+cd Docker
+docker compose up -d
+```
+
 ---
 
-## Future Plans
+## Environment Variables
 
-- Dockerize the application for easier deployment.
-- Add a book summary section to help users decide which book to rent.
-- Integrate email notifications for orders and feedback.
+See `.env.example` for all required environment variables:
+
+- `PORT` - Server port
+- `MONGO_ATLAS_URI` - MongoDB connection string
+- `REDIS_URL` - Redis connection URL
+- `JWT_PUBLIC_KEY` - JWT public key for verification
+- `LOCALHOST_FRONTEND_URL` - Local frontend URL (for CORS)
+- `PRODUCTION_FRONTEND_URL` - Production frontend URL (for CORS)
+
+---
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
 ## Contact
 
 For suggestions or questions, contact: **lakshay12290@gmail.com**
-
----
