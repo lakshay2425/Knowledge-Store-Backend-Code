@@ -1,5 +1,7 @@
 # Knowledge Store Backend
 
+> ⚠️ **This project is discontinued and no longer actively maintained.**
+
 **Knowledge Store** is a book rental platform backend that allows users to rent books from a wide selection of genres at affordable prices. The platform solves the problem of expensive book purchases and storage by enabling users to rent books for as long as they need, then return them when finished.
 
 ---
